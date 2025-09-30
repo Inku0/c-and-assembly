@@ -2,8 +2,24 @@
 #include "mem.h"
 #include "bfi.h"
 
+#ifdef DEBUG
+  #define PRINT_PARAMS "'%c' (kood = %d)\n", c, c
+#else
+  #define PRINT_PARAMS "%c", c
+#endif
+
+void handleStdIn(char c) {
+	if (EOF == c) {
+		printf("Sisendi lõpp!\n");
+		return;
+	}
+	// imaginary else
+	mem_set(c);
+}
+
 void interpret(char *program) {
 	int i = 0;
+	char c;
 	while (program[i] != 0 ) {
 		switch (program[i]) {
 			case BF_INCREASE:
@@ -18,6 +34,16 @@ void interpret(char *program) {
 			case BF_LEFT:
 				mem_left();
 				break;
+			case BF_READ:
+				// int c = getc(stdin); Label followed by a declaration is a C23 extension (clang -Wc23-extensions)
+				// why use getc?
+				handleStdIn(getc(stdin));
+				break;
+			case BF_PRINT:
+				// char c = mem_get(); Label followed by a declaration is a C23 extension (clang -Wc23-extensions)
+				c = mem_get();
+				printf(PRINT_PARAMS);
+				break;
 			case BF_DEBUG:
 				mem_printDebug();
 				break;
@@ -30,9 +56,18 @@ void interpret(char *program) {
 	}
 }
 
-int main(void) {
+// miks double pointer?
+// argument Count and argument Vector
+int main(int argc, char **argv) {
+  if (argc != 2) {
+    printf("Programmil peab olema üks parameeter, milleks on BF programm!\n");
 
-	interpret("++++>>++<<#");
+    return 1;
+  }
+
+  interpret(argv[1]);
+
+	//interpret("++++>>++<<#");
 	/* Eeldatav väljund:
 	index: 0 mem[0 .. 9]: 4 0 2 0 0 0 0 0 0 0
 	*/
