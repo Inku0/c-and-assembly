@@ -1,5 +1,4 @@
 #include "coolStack.h"
-#include "coolStackTest.h"
 #include "mem.h"
 #include "macros.h"
 #include <stdio.h>

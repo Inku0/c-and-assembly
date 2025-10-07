@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "mem.h"
+#include "coolStack.h"
 #include "macros.h"
 
 /*
@@ -13,7 +14,7 @@
 
 #define MEM_LEN 30000
 
-int8_t mem[MEM_LEN] = {};
+int8_t mem[MEM_LEN] = {0};
 int32_t current_index = 0;
 
 int mem_get(void) {
@@ -53,7 +54,7 @@ int mem_set(char v) {
 }
 
 void mem_printDebug(void) {
-	int real_end_index = current_index + 9 > MEM_LEN ? current_index + 9 - MEM_LEN : current_index + 9;
+	const int real_end_index = current_index + 9 > MEM_LEN ? current_index + 9 - MEM_LEN : current_index + 9;
 	printf("index: %d; mem [%d ... %d]: ", current_index, current_index, real_end_index);
 	for (int i = 0; i < 10; i++) {
 		printf("%d ", mem_get());

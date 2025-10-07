@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include "coolStack.h"
 #include "mem.h"
 #include "bfi.h"
 
@@ -20,6 +22,7 @@ void handleStdIn(char c) {
 void interpret(char *program) {
 	int i = 0;
 	char c;
+
 	while (program[i] != 0 ) {
 		switch (program[i]) {
 			case BF_INCREASE:
@@ -35,7 +38,7 @@ void interpret(char *program) {
 				mem_left();
 				break;
 			case BF_READ:
-				// int c = getc(stdin); Label followed by a declaration is a C23 extension (clang -Wc23-extensions)
+				// int c = getc(stdin);
 				// why use getc?
 				handleStdIn(getc(stdin));
 				break;
@@ -43,6 +46,21 @@ void interpret(char *program) {
 				// char c = mem_get(); Label followed by a declaration is a C23 extension (clang -Wc23-extensions)
 				c = mem_get();
 				printf(PRINT_PARAMS);
+				break;
+			case BF_START_LOOP:
+				if (mem_get() == 0) {
+					i = stack_pop('e');
+				} else {
+					// -1 to get to the start_loop and not the content
+					if (!(stack_isEmpty('e'))) {
+						stack_pop('e');
+					}
+					stack_push(i - 1, 'b');
+				}
+				break;
+			case BF_END_LOOP:
+				stack_push(i, 'e');
+				i = stack_pop('b');
 				break;
 			case BF_DEBUG:
 				mem_printDebug();
