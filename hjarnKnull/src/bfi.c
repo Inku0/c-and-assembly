@@ -49,18 +49,18 @@ void interpret(char *program) {
 				break;
 			case BF_START_LOOP:
 				if (mem_get() == 0) {
-					i = stack_pop('e');
+					i = stack_pop();
 				} else {
 					// -1 to get to the start_loop and not the content
-					if (!(stack_isEmpty('e'))) {
-						stack_pop('e');
+					if (!(stack_isEmpty())) {
+						stack_pop();
 					}
-					stack_push(i - 1, 'b');
+					stack_push(i - 1);
 				}
 				break;
 			case BF_END_LOOP:
-				stack_push(i, 'e');
-				i = stack_pop('b');
+				stack_push(i);
+				i = stack_pop();
 				break;
 			case BF_DEBUG:
 				mem_printDebug();
