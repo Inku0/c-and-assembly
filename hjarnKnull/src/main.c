@@ -1,20 +1,14 @@
 #include "coolStack.h"
-#include "mem.h"
-#include "macros.h"
-#include <stdio.h>
+#include <stdlib.h>
+
+stack_t main_stack = {
+	.items = NULL,
+	.len = 0,
+	.capacity = 0
+};
 
 int main(void) {
-  //stack_testPinu();
-  //stack_inputLoop();
-  //stack_printStack();
-  ASSERT(mem_get() == 0);
-  ASSERT(mem_inc() == 1);
-	ASSERT(mem_inc() == 2);
-	ASSERT(mem_right() == 1);
-	ASSERT(mem_get() == 0);
-	ASSERT(mem_dec() == -1);
-	ASSERT(mem_left() == 0);
-	ASSERT(mem_get() == 2);
-  mem_printDebug();
+	stack_push(&main_stack, 5);
+	stack_pop(&main_stack);
   return 0;
 }

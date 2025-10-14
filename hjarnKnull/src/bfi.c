@@ -20,6 +20,16 @@ void handleStdIn(char c) {
 }
 
 void interpret(char *program) {
+	stack_t beginning_stack = {
+		.items = NULL,
+		.len = 0,
+		.capacity = 0
+	};
+	stack_t ending_stack = {
+		.items = NULL,
+		.len = 0,
+		.capacity = 0
+	};
 	int i = 0;
 	char c;
 
@@ -47,20 +57,21 @@ void interpret(char *program) {
 				c = mem_get();
 				printf(PRINT_PARAMS);
 				break;
-			case BF_START_LOOP:
+			case BF_START_LOOP: {
 				if (mem_get() == 0) {
-					i = stack_pop();
+					i = stack_pop(&ending_stack);
 				} else {
 					// -1 to get to the start_loop and not the content
-					if (!(stack_isEmpty())) {
-						stack_pop();
+					if (!(stack_isEmpty(&ending_stack))) {
+						stack_pop(&ending_stack);
 					}
-					stack_push(i - 1);
+					stack_push(&beginning_stack, i - 1);
 				}
+			}
 				break;
 			case BF_END_LOOP:
-				stack_push(i);
-				i = stack_pop();
+				stack_push(&ending_stack, i);
+				i = stack_pop(&beginning_stack);
 				break;
 			case BF_DEBUG:
 				mem_printDebug();
@@ -72,6 +83,9 @@ void interpret(char *program) {
 
 		i++;
 	}
+
+	stack_clear(&beginning_stack);
+	stack_clear(&ending_stack);
 }
 
 // miks double pointer?
