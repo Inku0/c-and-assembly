@@ -1,5 +1,14 @@
 #pragma once
 
+// nullib ära terve mälu
+void mem_init(void);
+
+// lisab antud arvu mälu kohale, kus hetkel asub
+int mem_add(int value);
+
+// liigub mälus mingi arvu samme
+int mem_move(int units);
+
 /*
  * suurendab indeksiga viidatud massiivi elemendi väärtust ühe võrra. Tagastab uue väärtuse.
  */
