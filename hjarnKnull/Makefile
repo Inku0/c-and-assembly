@@ -7,7 +7,6 @@ all: build_objects compile
 
 build_objects: src/coolStack.c inc/coolStack.h src/mem.c inc/mem.h
 	$(CC) $(CFLAGS) -I$(INC) -c -o obj/coolStack.o src/coolStack.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/main.o src/main.c
 	$(CC) $(CFLAGS) -I$(INC) -c -o obj/bfi.o src/bfi.c
 	$(CC) $(CFLAGS) -I$(INC) -c -o obj/mem.o src/mem.c
 	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_inc.o src/inst_inc.c
@@ -16,10 +15,10 @@ build_objects: src/coolStack.c inc/coolStack.h src/mem.c inc/mem.h
 	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_write.o src/inst_write.c
 	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_beginLoop.o src/inst_beginLoop.c
 	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_endLoop.o src/inst_endLoop.c
+	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_free.o src/inst_free.c
 
-compile: src/main.c src/bfi.c
-	$(CC) $(CFLAGS) $(LINKER) -I$(INC) -o bin/main obj/main.o obj/coolStack.o obj/mem.o
-	$(CC) $(CFLAGS) $(LINKER) -I$(INC) -o bin/bfi obj/mem.o obj/bfi.o obj/coolStack.o obj/inst_inc.o obj/inst_move.o obj/inst_read.o obj/inst_write.o obj/inst_endLoop.o obj/inst_beginLoop.o
+compile: src/bfi.c
+	$(CC) $(CFLAGS) $(LINKER) -I$(INC) -o bin/bfi obj/mem.o obj/bfi.o obj/coolStack.o obj/inst_inc.o obj/inst_move.o obj/inst_read.o obj/inst_write.o obj/inst_endLoop.o obj/inst_beginLoop.o obj/inst_free.o
 
 clean:
 	rm -f obj/*.o bin/*

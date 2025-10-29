@@ -9,7 +9,7 @@ void BF_endLoop_run(BF_instruction_t *instruction, int *index) {
   // anything below 0 is an illegal and illogical value
   if (instruction->loopBackwardIndex < 0) {
     printf("illegal loopBackwardIndex %d\n", instruction->loopBackwardIndex);
-    return;
+    exit(-1);
   }
 
   if (val == 0) {
