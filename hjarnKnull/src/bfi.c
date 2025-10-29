@@ -7,12 +7,15 @@
 #include "bfi.h"
 
 // why the double pointer?
-void parse(BF_instruction_t **inst_array, char *program) {
+BF_instruction_t **parse(char *program, int program_len) {
 	stack_t loop_stack = {
 		.items = NULL,
 		.len = 0,
 		.capacity = 0
 	};
+
+	// a stack which contains program_len number of pointers
+  BF_instruction_t **inst_array = malloc(sizeof(BF_instruction_t*) * program_len);
 
 	int i = 0;
 
@@ -47,11 +50,8 @@ void parse(BF_instruction_t **inst_array, char *program) {
 			}
 			case BF_END_LOOP: {
 				int beginIndex = stack_pop(&loop_stack);
-
 				inst_array[i] = BF_endLoop_new(beginIndex);
-
 				inst_array[beginIndex]->loopForwardIndex = i;
-
 				break;
 			}
 			default:
@@ -63,6 +63,8 @@ void parse(BF_instruction_t **inst_array, char *program) {
 	}
 
 	stack_clear(&loop_stack);
+
+	return inst_array;
 }
 
 void run(BF_instruction_t **inst_array, int inst_array_length) {
@@ -87,11 +89,8 @@ void interpret2(char *program) {
   // length of BF program
   int program_len = strlen(program);
 
-  // a stack which contains program_len number of pointers
-  BF_instruction_t **inst_array = malloc(sizeof(BF_instruction_t *) * program_len);
-
-  // this parse changes the inst_array in-place
-  parse(inst_array, program);
+  // parses the program into a stack of instructions
+  BF_instruction_t **inst_array = parse(program, program_len);
 
   // run takes the edited inst_array and executes the instructions
   run(inst_array, program_len);
@@ -100,7 +99,6 @@ void interpret2(char *program) {
   free(inst_array);
 }
 
-// miks double pointer?
 // argument Count and argument Vector
 int main(int argc, char **argv) {
   if (argc != 2) {
