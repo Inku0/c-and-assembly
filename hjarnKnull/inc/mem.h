@@ -4,7 +4,7 @@
 void mem_init(void);
 
 // lisab antud arvu mälu kohale, kus hetkel asub
-int mem_add(int value);
+int mem_add(int amount);
 
 // liigub mälus mingi arvu samme
 int mem_move(int units);

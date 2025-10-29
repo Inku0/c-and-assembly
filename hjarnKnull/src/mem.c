@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "mem.h"
 #include "coolStack.h"
 #include "macros.h"
@@ -18,9 +19,10 @@ int8_t mem[MEM_LEN] = {0};
 int32_t current_index = 0;
 
 void mem_init(void) {
-	for (int i = 0; i <= MEM_LEN; i++) {
-		mem[i] = 0;
-	}
+	memset(mem, 0, MEM_LEN * sizeof(int8_t));
+	// for (int i = 0; i <= MEM_LEN; i++) {
+	// 	mem[i] = 0;
+	// }
 	return;
 }
 
@@ -28,8 +30,8 @@ int mem_get(void) {
 	return mem[current_index];
 }
 
-int mem_add(int value) {
-	mem[current_index] = value;
+int mem_add(int amount) {
+	mem[current_index] += amount;
 	return mem_get();
 }
 
@@ -39,7 +41,10 @@ int mem_move(int units) {
 		current_index = 0;
 	}
 	else if (new_index > MEM_LEN) {
-		current_index = MEM_LEN - new_index; // wrarp-around
+		current_index = new_index - MEM_LEN; // wrap-around
+	}
+	else {
+		current_index = new_index;
 	}
 	return current_index;
 }
