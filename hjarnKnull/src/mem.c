@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include "mem.h"
 #include "coolStack.h"
 #include "macros.h"
@@ -17,34 +18,53 @@
 int8_t mem[MEM_LEN] = {0};
 int32_t current_index = 0;
 
+void mem_init(void) {
+	memset(mem, 0, MEM_LEN * sizeof(int8_t));
+	// for (int i = 0; i <= MEM_LEN; i++) {
+	// 	mem[i] = 0;
+	// }
+	return;
+}
+
 int mem_get(void) {
 	return mem[current_index];
 }
 
+int mem_add(int amount) {
+	mem[current_index] += amount;
+	return mem_get();
+}
+
+int mem_move(int units) {
+	int new_index = current_index + units;
+	if (new_index < 0) {
+		current_index = 0;
+	}
+	else if (new_index > MEM_LEN) {
+		current_index = new_index - MEM_LEN; // wrap-around
+	}
+	else {
+		current_index = new_index;
+	}
+	return current_index;
+}
+
 int mem_inc(void) {
-	mem[current_index]++;
+	mem_add(1);
 	return mem_get();
 }
 
 int mem_dec(void) {
-	--mem[current_index];
+	mem_add(-1);
 	return mem_get();
 }
 
 int mem_left(void) {
-	--current_index;
-	if (current_index < 0) {
-		current_index = 0;
-	}
-	return current_index;
+	return mem_move(-1);
 }
 
 int mem_right(void) {
-	current_index++;
-	if (current_index >= MEM_LEN) {
-		current_index = 0;
-	}
-	return current_index;
+	return mem_move(1);
 }
 
 // miks char v mitte int v?

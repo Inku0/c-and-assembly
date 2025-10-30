@@ -6,6 +6,11 @@ typedef struct stack_st {
 	int len;
 	int capacity;
 	int *items;
+
+	void (*push)(struct stack_st *stack, int value);
+	int (*pop)(struct stack_st *stack);
+	bool (*isEmpty)(struct stack_st *stack);
+	// TODO: implement these as almost class-like methods
 } stack_t;
 
 /* Funktsioon stack_push saab parameetriks int tüüpi väärtuse, mille lisab globaalsesse pinusse, kui

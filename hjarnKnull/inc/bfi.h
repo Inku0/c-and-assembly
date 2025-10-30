@@ -1,5 +1,6 @@
 #pragma once
 
+// legal instructions
 enum instructions_e {
     /* Liiguta mälu indeksit paremale. */
     BF_RIGHT      = '>',
