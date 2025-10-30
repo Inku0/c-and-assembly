@@ -6,6 +6,47 @@
 #include "mem.h"
 #include "bfi.h"
 
+int optimize_length(char *program) {
+	int i = 0;
+	int optimized_count = 0;
+
+	// get the optimized length of instructions
+	while (program[i] != 0) {
+		char current = program[i];
+
+		if (current == BF_INCREASE || current == BF_DECREASE ) {
+			int count = 1;
+			while (program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) {
+				// count up the number of elements in the optimizable instruction sequence
+				count++;
+			}
+			// treat the sequence as just one optimized instruction
+			optimized_count++;
+			// move forward to the next instruction
+			i += count;
+		}
+
+		else if (current == BF_RIGHT || current == BF_LEFT) {
+			int count = 1;
+			while (program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) {
+				// count up the number of elements in the optimizable instruction sequence
+				count++;
+			}
+			// treat the sequence as just one optimized instruction
+			optimized_count++;
+			// move forward to the next instruction
+			i += count;
+		}
+
+		else {
+			// non-optimizable instruction, just count it as is
+			optimized_count++;
+			i++;
+		}
+	}
+	return optimized_count;
+}
+
 // why the double pointer?
 BF_instruction_t **parse(char *program, int program_len) {
 	stack_t loop_stack = {
@@ -14,52 +55,71 @@ BF_instruction_t **parse(char *program, int program_len) {
 		.capacity = 0
 	};
 
-	// a stack which contains program_len number of pointers
-  BF_instruction_t **inst_array = malloc(sizeof(BF_instruction_t*) * program_len);
+	// a stack which contains optimized_count number of pointers
+	// calloc inits all values to 0
+  BF_instruction_t **inst_array = calloc(program_len, sizeof(BF_instruction_t*));
 
-	int i = 0;
+  int read_i = 0; // index for reading from program string
+  int write_i = 0; // index for writing to instruction array
 
-	while (program[i] != 0 ) {
+	while (program[read_i] != 0 ) {
 
 		// init every instruction as NULL
-		inst_array[i] = NULL;
+		inst_array[write_i] = NULL;
 
-		switch (program[i]) {
+		switch (program[read_i]) {
 			case BF_INCREASE:
-				inst_array[i] = BF_increment_new(1);
+			case BF_DECREASE: {
+				int j = 1;
+				int sum = (program[read_i] == BF_INCREASE) ? 1 : -1;
+				while (program[read_i+j] == BF_DECREASE || program[read_i+j] == BF_INCREASE) {
+					program[read_i+j] == BF_INCREASE ? sum++ : --sum;
+					j++;
+				}
+				inst_array[write_i] = BF_increment_new(sum);
+				read_i += j;
 				break;
-			case BF_DECREASE:
-				inst_array[i] = BF_increment_new(-1);
-				break;
+			}
 			case BF_RIGHT:
-				inst_array[i] = BF_move_new(1);
+			case BF_LEFT: {
+				int j = 1;
+				int sum = (program[read_i] == BF_RIGHT) ? 1 : -1;
+				while (program[read_i+j] == BF_RIGHT || program[read_i+j] == BF_LEFT) {
+					program[read_i+j] == BF_RIGHT ? sum++ : --sum;
+					j++;
+				}
+				inst_array[write_i] = BF_move_new(sum);
+				read_i += j;
 				break;
-			case BF_LEFT:
-				inst_array[i] = BF_move_new(-1);
-				break;
+			}
 			case BF_READ:
-				inst_array[i] = BF_read_new();
+				inst_array[write_i] = BF_read_new();
+				read_i++;
 				break;
 			case BF_PRINT:
-				inst_array[i] = BF_write_new();
+				inst_array[write_i] = BF_write_new();
+				read_i++;
 				break;
 			case BF_START_LOOP: {
-				inst_array[i] = BF_beginLoop_new();
-				stack_push(&loop_stack, i);
+				inst_array[write_i] = BF_beginLoop_new();
+				stack_push(&loop_stack, write_i);
+				read_i++;
 				break;
 			}
 			case BF_END_LOOP: {
 				int beginIndex = stack_pop(&loop_stack);
-				inst_array[i] = BF_endLoop_new(beginIndex);
-				inst_array[beginIndex]->loopForwardIndex = i;
+				inst_array[write_i] = BF_endLoop_new(beginIndex);
+				inst_array[beginIndex]->loopForwardIndex = write_i;
+				read_i++;
 				break;
 			}
 			default:
 				// default behavior is to silently ignore unknown symbols
+				--write_i; // counteract the default ++ behavior
+				read_i++;
 				break;
 		}
-
-		i++;
+		write_i++;
 	}
 
 	stack_clear(&loop_stack);
@@ -87,7 +147,7 @@ void run(BF_instruction_t **inst_array, int inst_array_length) {
 
 void interpret2(char *program) {
   // length of BF program
-  int program_len = strlen(program);
+  int program_len = optimize_length(program);
 
   // parses the program into a stack of instructions
   BF_instruction_t **inst_array = parse(program, program_len);
