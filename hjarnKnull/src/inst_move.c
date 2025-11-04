@@ -11,7 +11,7 @@ void BF_move_run(BF_instruction_t *instruction, int *index) {
   (*index)++;
 }
 
-BF_instruction_t* BF_move_new(int units) {
+BF_instruction_t* BF_move_new(const int units) {
 	// sanity check
 	if (units == 0) {
   	printf("units can't be 0\n");

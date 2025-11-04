@@ -11,7 +11,7 @@ void BF_increment_run(BF_instruction_t *instruction, int *index) {
   (*index)++;
 }
 
-BF_instruction_t* BF_increment_new(int amount) {
+BF_instruction_t* BF_increment_new(const int amount) {
 	// sanity check
 	if (amount == 0) {
   	printf("increment can't be 0\n");

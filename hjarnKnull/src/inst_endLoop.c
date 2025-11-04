@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 void BF_endLoop_run(BF_instruction_t *instruction, int *index) {
-  int val = mem_get();
+  const int val = mem_get();
 
   // anything below 0 is an illegal and illogical value
   if (instruction->loopBackwardIndex < 0) {
@@ -21,7 +21,7 @@ void BF_endLoop_run(BF_instruction_t *instruction, int *index) {
   }
 }
 
-BF_instruction_t *BF_endLoop_new(int loopBackwardIndex) {
+BF_instruction_t *BF_endLoop_new(const int loopBackwardIndex) {
 	inst_boilerplate;
 
 	// don't know the index at compile-time => instantiate it with an illegal value

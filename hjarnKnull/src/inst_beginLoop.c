@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 void BF_beginLoop_run(BF_instruction_t *instruction, int *index) {
-  int val = mem_get();
+  const int val = mem_get();
 
   // anything below 0 is an illegal and illogical value
   if (instruction->loopForwardIndex < 0) {
