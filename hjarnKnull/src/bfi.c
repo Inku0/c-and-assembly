@@ -20,8 +20,10 @@ int optimize_length(char *program) {
 				// count up the number of elements in the optimizable instruction sequence
 				count++;
 			}
-			// treat the sequence as just one optimized instruction
-			optimized_count++;
+			if (optimized_count != 0) {
+				// treat the sequence as just one optimized instruction
+				optimized_count++;
+			}
 			// move forward to the next instruction
 			i += count;
 		}
@@ -31,6 +33,10 @@ int optimize_length(char *program) {
 			while (program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) {
 				// count up the number of elements in the optimizable instruction sequence
 				count++;
+			}
+			if (optimized_count != 0) {
+				// treat the sequence as just one optimized instruction
+				optimized_count++;
 			}
 			// treat the sequence as just one optimized instruction
 			optimized_count++;
@@ -76,7 +82,11 @@ BF_instruction_t **parse(char *program, int program_len) {
 					program[read_i+j] == BF_INCREASE ? sum++ : --sum;
 					j++;
 				}
-				inst_array[write_i] = BF_increment_new(sum);
+				if (sum != 0 ) {
+					inst_array[write_i] = BF_increment_new(sum);
+				} else {
+					--write_i;
+				}
 				read_i += j;
 				break;
 			}
@@ -88,7 +98,11 @@ BF_instruction_t **parse(char *program, int program_len) {
 					program[read_i+j] == BF_RIGHT ? sum++ : --sum;
 					j++;
 				}
-				inst_array[write_i] = BF_move_new(sum);
+				if (sum != 0 ) {
+					inst_array[write_i] = BF_move_new(sum);
+				} else {
+					--write_i;
+				}
 				read_i += j;
 				break;
 			}
