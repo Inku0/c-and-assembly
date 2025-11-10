@@ -1,184 +1,125 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "coolStack.h"
-#include "instructions.h"
 #include "mem.h"
-#include "bfi.h"
+#include "simpleStack.h"
+#include "bf.h"
 
-int optimize_length(char *program) {
-	int i = 0;
-	int optimized_count = 0;
+#ifdef DEBUG
+  #define PRINT_PARAMS "'%c' (kood = %d)\n", c, c
+#else
+  #define PRINT_PARAMS "%c", c
+#endif
 
-	// get the optimized length of instructions
-	while (program[i] != 0) {
-		char current = program[i];
-
-		if (current == BF_INCREASE || current == BF_DECREASE ) {
-			int count = 1;
-			while (program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) {
-				// count up the number of elements in the optimizable instruction sequence
-				count++;
-			}
-			if (optimized_count != 0) {
-				// treat the sequence as just one optimized instruction
-				optimized_count++;
-			}
-			// move forward to the next instruction
-			i += count;
-		}
-
-		else if (current == BF_RIGHT || current == BF_LEFT) {
-			int count = 1;
-			while (program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) {
-				// count up the number of elements in the optimizable instruction sequence
-				count++;
-			}
-			if (optimized_count != 0) {
-				// treat the sequence as just one optimized instruction
-				optimized_count++;
-			}
-			// treat the sequence as just one optimized instruction
-			optimized_count++;
-			// move forward to the next instruction
-			i += count;
-		}
-
-		else {
-			// non-optimizable instruction, just count it as is
-			optimized_count++;
-			i++;
-		}
+void handleStdIn(char c) {
+	if (EOF == c) {
+		printf("Sisendi lõpp!\n");
+		return;
 	}
-	return optimized_count;
+	// imaginary else
+	mem_set(c);
 }
 
-// why the double pointer?
-BF_instruction_t **parse(char *program, int program_len) {
-	stack_t loop_stack = {
-		.items = NULL,
-		.len = 0,
-		.capacity = 0
-	};
+// Pre-parse the program to find matching loop brackets
+// Returns an array where loop_map[i] contains the matching bracket index
+int *build_loop_map(char *program) {
+	int program_len = strlen(program);
+	int *loop_map = calloc(program_len, sizeof(int));
+	stack_t *loop_stack = create_stack(1000);
+	
+	if (loop_map == NULL) {
+		printf("Failed to allocate loop map\n");
+		exit(-1);
+	}
 
-	// a stack which contains optimized_count number of pointers
-	// calloc inits all values to 0
-  BF_instruction_t **inst_array = calloc(program_len, sizeof(BF_instruction_t*));
+	// Initialize all positions to -1 (no match)
+	for (int i = 0; i < program_len; i++) {
+		loop_map[i] = -1;
+	}
 
-  int read_i = 0; // index for reading from program string
-  int write_i = 0; // index for writing to instruction array
+	// Scan through program and match brackets
+	for (int i = 0; i < program_len; i++) {
+		if (program[i] == BF_START_LOOP) {
+			loop_stack->push(loop_stack, i);
+		} else if (program[i] == BF_END_LOOP) {
+			if (loop_stack->isEmpty(loop_stack)) {
+				printf("Unmatched ']' at position %d\n", i);
+				free(loop_map);
+				loop_stack->clear(loop_stack);
+				free(loop_stack);
+				exit(-1);
+			}
+			int start_pos = loop_stack->pop(loop_stack);
+			// Store bidirectional mapping
+			loop_map[start_pos] = i;  // '[' maps to ']'
+			loop_map[i] = start_pos;  // ']' maps to '['
+		}
+	}
 
-	while (program[read_i] != 0 ) {
+	if (!loop_stack->isEmpty(loop_stack)) {
+		printf("Unmatched '[' in program\n");
+		free(loop_map);
+		loop_stack->clear(loop_stack);
+		free(loop_stack);
+		exit(-1);
+	}
 
-		// init every instruction as NULL
-		inst_array[write_i] = NULL;
+	loop_stack->clear(loop_stack);
+	free(loop_stack);
+	
+	return loop_map;
+}
 
-		switch (program[read_i]) {
+void interpret(char *program) {
+	// Pre-build the loop position map using one stack
+	int *loop_map = build_loop_map(program);
+	
+	int i = 0;
+	char c;
+
+	while (program[i] != 0) {
+		switch (program[i]) {
 			case BF_INCREASE:
-			case BF_DECREASE: {
-				int j = 1;
-				int sum = (program[read_i] == BF_INCREASE) ? 1 : -1;
-				while (program[read_i+j] == BF_DECREASE || program[read_i+j] == BF_INCREASE) {
-					program[read_i+j] == BF_INCREASE ? sum++ : --sum;
-					j++;
-				}
-				if (sum != 0 ) {
-					inst_array[write_i] = BF_increment_new(sum);
-				} else {
-					--write_i;
-				}
-				read_i += j;
+				mem_inc();
 				break;
-			}
+			case BF_DECREASE:
+				mem_dec();
+				break;
 			case BF_RIGHT:
-			case BF_LEFT: {
-				int j = 1;
-				int sum = (program[read_i] == BF_RIGHT) ? 1 : -1;
-				while (program[read_i+j] == BF_RIGHT || program[read_i+j] == BF_LEFT) {
-					program[read_i+j] == BF_RIGHT ? sum++ : --sum;
-					j++;
-				}
-				if (sum != 0 ) {
-					inst_array[write_i] = BF_move_new(sum);
-				} else {
-					--write_i;
-				}
-				read_i += j;
+				mem_right();
 				break;
-			}
+			case BF_LEFT:
+				mem_left();
+				break;
 			case BF_READ:
-				inst_array[write_i] = BF_read_new();
-				read_i++;
+				handleStdIn(getc(stdin));
 				break;
 			case BF_PRINT:
-				inst_array[write_i] = BF_write_new();
-				read_i++;
+				c = mem_get();
+				printf(PRINT_PARAMS);
 				break;
-			case BF_START_LOOP: {
-				inst_array[write_i] = BF_beginLoop_new();
-				stack_push(&loop_stack, write_i);
-				read_i++;
+			case BF_START_LOOP:
+				// If current cell is 0, jump forward to matching ']'
+				if (mem_get() == 0) {
+					i = loop_map[i];
+				}
 				break;
-			}
-			case BF_END_LOOP: {
-				int beginIndex = stack_pop(&loop_stack);
-				inst_array[write_i] = BF_endLoop_new(beginIndex);
-				inst_array[beginIndex]->loopForwardIndex = write_i;
-				read_i++;
+			case BF_END_LOOP:
+				// If current cell is not 0, jump back to matching '['
+				if (mem_get() != 0) {
+					i = loop_map[i];
+				}
 				break;
-			}
+			case BF_DEBUG:
+				mem_printDebug();
+				break;
 			default:
-				// default behavior is to silently ignore unknown symbols
-				--write_i; // counteract the default ++ behavior
-				read_i++;
 				break;
+				/* Ignoreerime sümboleid, mida me ei tunne. */
 		}
-		write_i++;
+
+		i++;
 	}
 
-	stack_clear(&loop_stack);
-
-	return inst_array;
-}
-
-void run(BF_instruction_t **inst_array, int inst_array_length) {
-	int i = 0;
-	while (1) {
-		if (i < 0 || i >= inst_array_length) break;
-		if (inst_array[i] != NULL) {
-			inst_array[i]->run(inst_array[i], &i);
-		} else{
-			i++;
-		}
-	}
-	for (i = 0; i < inst_array_length; i++)
-		if (inst_array[i] != NULL) {
-			inst_array[i]->free(inst_array[i]);
-			inst_array[i] = NULL;
-		}
-	return;
-}
-
-void interpret2(char *program) {
-  // length of BF program
-  int program_len = optimize_length(program);
-
-  // parses the program into a stack of instructions
-  BF_instruction_t **inst_array = parse(program, program_len);
-
-  // run takes the edited inst_array and executes the instructions
-  run(inst_array, program_len);
-
-  // free the allocated memory
-  free(inst_array);
-}
-
-// argument Count and argument Vector
-int main(int argc, char **argv) {
-  if (argc != 2) {
-    printf("bfi must be given an arg in the form of a BF program!\n");
-    exit(-1);
-  }
-
-  interpret2(argv[1]);
+	free(loop_map);
 }

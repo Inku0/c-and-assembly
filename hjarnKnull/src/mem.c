@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "mem.h"
-#include "coolStack.h"
 #include "macros.h"
 
 /*

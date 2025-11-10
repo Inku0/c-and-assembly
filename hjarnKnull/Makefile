@@ -3,22 +3,26 @@ CFLAGS := -Wall -Werror -Wpedantic
 LINKER := -fuse-ld=mold
 INC := inc
 
+INST_SRCS := $(wildcard src/instructions/*.c)
+INST_OBJS := $(patsubst src/instructions/%.c,obj/instructions/%.o,$(INST_SRCS))
+
+BF_OBJS := obj/bf.o obj/bfi.o obj/bfc.o obj/mem.o obj/simpleStack.o $(INST_OBJS)
+
 all: build_objects compile
 
-build_objects: src/coolStack.c inc/coolStack.h src/mem.c inc/mem.h
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/coolStack.o src/coolStack.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/bfi.o src/bfi.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/mem.o src/mem.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_inc.o src/inst_inc.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_move.o src/inst_move.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_read.o src/inst_read.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_write.o src/inst_write.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_beginLoop.o src/inst_beginLoop.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_endLoop.o src/inst_endLoop.c
-	$(CC) $(CFLAGS) -I$(INC) -c -o obj/inst_free.o src/inst_free.c
+build_objects: $(wildcard src/*.c) $(wildcard inc/*.h)
+	mkdir -p obj/instructions
+	for src in src/*.c; do \
+		obj=$$(basename $$src .c); \
+		$(CC) $(CFLAGS) -I$(INC) -c -o obj/$$obj.o $$src; \
+	done
+	for src in src/instructions/*.c; do \
+		obj=$$(basename $$src .c); \
+		$(CC) $(CFLAGS) -I$(INC) -c -o obj/instructions/$$obj.o $$src; \
+	done
 
-compile: src/bfi.c
-	$(CC) $(CFLAGS) $(LINKER) -I$(INC) -o bin/bfi obj/mem.o obj/bfi.o obj/coolStack.o obj/inst_inc.o obj/inst_move.o obj/inst_read.o obj/inst_write.o obj/inst_endLoop.o obj/inst_beginLoop.o obj/inst_free.o
+compile: $(wildcard src/*.c) $(wildcard inc/*.h)
+	$(CC) $(CFLAGS) $(LINKER) -I$(INC) -o bin/bf $(BF_OBJS)
 
 clean:
-	rm -f obj/*.o bin/*
+	rm -f obj/*.o obj/instructions/*.o bin/*

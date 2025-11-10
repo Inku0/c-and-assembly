@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include "simpleStack.h"
 #include "coolStack.h"
 #include "macros.h"
 
 #define OOM \
 printf("OOM at %d\n", __LINE__); \
-exit(-1);
+exit(-1)
 
-void stack_push(stack_t_old *stack, int value) {
+void push(stack_t *stack, int value) {
 	// check if memory has been allocated, otherwise init it
 	if (stack->len == 0) {
 		stack->capacity = 1;
@@ -20,7 +21,7 @@ void stack_push(stack_t_old *stack, int value) {
 
 		// if it's null, then the OS failed to allocate memory for it
 		if (stack->items == NULL) {
-			OOM // Out Of Memory
+			OOM; // Out Of Memory
 		}
 
 	// more elements than capacity allows
@@ -31,7 +32,7 @@ void stack_push(stack_t_old *stack, int value) {
 		int *new_items = realloc(stack->items, new_capacity * sizeof(int));
 
 		if (new_items == NULL) {
-			OOM
+			OOM;
 		}
 
 		stack->capacity = new_capacity;
@@ -47,7 +48,7 @@ void stack_push(stack_t_old *stack, int value) {
 	return;
 }
 
-int stack_pop(stack_t_old *stack) {
+int pop(stack_t *stack) {
 	// if it's 0 or less, then it's empty
 	// or if its pointer is NULL, it's also empty
 	if (stack->len <= 0 || stack->items == NULL) {
@@ -72,7 +73,7 @@ int stack_pop(stack_t_old *stack) {
 		int *new_items = realloc(stack->items, (new_capacity) * sizeof(int));
 
 		if (new_items == NULL) {
-			OOM
+			OOM;
 		}
 
 		stack->capacity = new_capacity;
@@ -82,18 +83,18 @@ int stack_pop(stack_t_old *stack) {
 	return value;
 }
 
-bool stack_isEmpty(stack_t_old *stack) {
+bool isEmpty(stack_t *stack) {
 	return !(stack->len > 0);
 }
 
-int stack_peek(stack_t_old *stack) {
-	if (stack_isEmpty(stack)) {
+int peek(stack_t *stack) {
+	if (stack->isEmpty(stack)) {
 		return 0;
 	}
 	return stack->items[stack->len - 1];
 }
 
-void stack_printStack(stack_t_old *stack) {
+void printStack(stack_t *stack) {
 	int temp_stack_size = stack->len;
 
 	while (temp_stack_size > 0) {
@@ -102,68 +103,43 @@ void stack_printStack(stack_t_old *stack) {
 	}
 }
 
-stack_t_old input_stack = {
-	.items = NULL,
-	.len = 0,
-	.capacity = 0
-};
-
-void stack_handleInput(int input) {
-	if (stack_isEmpty(&input_stack)) {
-		stack_push(&input_stack, input);
+void clear(stack_t *stack) {
+	// pop() already frees items when len reaches 0
+	while (stack->len > 0) {
+		stack->pop(stack);
 	}
-	else {
-		int peek_value = stack_peek(&input_stack);
-		if (input > 0) {
-
-			if (peek_value > 0) {
-				stack_push(&input_stack, input);
-			}
-
-			else if (peek_value < 0) {
-				int top_el = stack_pop(&input_stack);
-				int sum = input + top_el;
-
-				if (sum != 0) {
-					stack_push(&input_stack, sum);
-				}
-			}
-		}
-		else if (input < 0) {
-			int top_el = stack_pop(&input_stack);
-			int sum = input + top_el;
-
-			if (sum != 0) {
-				stack_push(&input_stack, sum);
-			}
-		}
+	// items should already be NULL and freed by pop()
+	// but just to be safe:
+	if (stack->items != NULL) {
+		free(stack->items);
+		stack->items = NULL;
 	}
-}
-
-int stack_len(stack_t_old *stack) {
-	return stack->len;
-}
-
-void stack_clear(stack_t_old *stack) {
-	int temp_stack_size = stack->len;
-
-	while (temp_stack_size > 0) {
-		stack_pop(stack);
-		temp_stack_size--;
-	}
-	free(stack->items);
-	stack->items = NULL;
 	stack->capacity = 0;
 	stack->len = 0;
 }
 
-void stack_inputLoop(void) {
-	int sisend;
-	do {
-		int numFilled = scanf("%d", &sisend);
-		ASSERT(numFilled == 1);
-		// printf("sisestati %d\n", sisend);
-		stack_handleInput(sisend);
-	} while (sisend != 0);
-	printf("\n");
+stack_t *create_stack(int starting_size) {
+	stack_t *new_stack = malloc(sizeof(stack_t));
+
+	if (new_stack == NULL) {
+		OOM;
+	}
+
+	new_stack->items = calloc(starting_size, sizeof(int));
+
+	if (new_stack->items == NULL) {
+		free(new_stack);
+		OOM;
+	}
+
+	new_stack->len = 0;
+	new_stack->capacity = starting_size;
+	new_stack->push = push;
+	new_stack->pop = pop;
+	new_stack->isEmpty = isEmpty;
+	new_stack->peek = peek;
+	new_stack->printStack = printStack;
+	new_stack->clear = clear;
+
+	return new_stack;
 }
