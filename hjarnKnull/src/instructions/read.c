@@ -3,6 +3,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void BF_read_asm(const BF_instruction_t *instruction, int *index) {
+#ifdef DEBUG
+	printf("\t; instruction: ,\n");
+	printf("\t; index %d\n", *index);
+#endif
+	printf("\tcall getchar\n");
+	printf("\tpush eax\n");
+	printf("\tcall mem_set\n");
+	printf("\tadd esp, 4\n");
+
+	(*index)++;
+}
+
 void BF_read_run(BF_instruction_t *instruction, int *index) {
 	char c = getc(stdin);
 
@@ -23,6 +36,7 @@ BF_instruction_t* BF_read_new(void) {
 	inst_boilerplate;
 
 	new->run = BF_read_run;
+	new->asmify = BF_read_asm;
 
 	cleanup:
 		return new;

@@ -11,19 +11,22 @@
 // see struct hoiab bf instruktsioone koos lisainfoga, mis võimaldab optimeeringut
 // pmst annab function pointeri, mis omakorda tahab kahte argumenti: viit instruktsiooni objektile ja viit instruktsiooni indeksile
 typedef struct BF_instruction_st {
-    void (*run)(struct BF_instruction_st *instruction, int *index);
-    void (*free)(struct BF_instruction_st *instruction);
+  void (*run)(struct BF_instruction_st *instruction, int *index);
+  void (*free)(struct BF_instruction_st *instruction);
 
-    union { // like polymorphism
-    	// suurendamise/vähendamise suurus
-    	int amount;
-     	// mitu kohta liikuda mälus
-     	int units;
-      // indeks kuhu hüpata, kui getMem() == 0
-      int loopForwardIndex;
-      // indeks kuhu hüpata tsükli lõpus, kui getMem() != 0
-      int loopBackwardIndex;
-    }; // no name given => any of the "names" can be used
+  // emit asm version of instruction
+  void (*asmify)(const struct BF_instruction_st *instruction, int *index);
+
+  union { // like polymorphism
+    // suurendamise/vähendamise suurus
+    int amount;
+    // mitu kohta liikuda mälus
+    int units;
+    // indeks kuhu hüpata, kui getMem() == 0
+    int loopForwardIndex;
+    // indeks kuhu hüpata tsükli lõpus, kui getMem() != 0
+    int loopBackwardIndex;
+  }; // no name given => any of the "names" can be used
 } BF_instruction_t;
 
 // generic free function for instructions

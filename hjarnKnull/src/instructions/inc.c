@@ -11,18 +11,31 @@ void BF_increment_run(BF_instruction_t *instruction, int *index) {
   (*index)++;
 }
 
+void BF_increment_asm(const BF_instruction_t *instruction, int *index) {
+#ifdef DEBUG
+	printf("\t; instruction: add %d\n", instruction->amount);
+	printf("\t; index %d\n", *index);
+#endif
+	printf("\tpush dword %d\n", instruction->amount);
+	printf("\tcall mem_add\n");
+	printf("\tadd esp, 4\n");
+
+	(*index)++;
+}
+
 BF_instruction_t* BF_increment_new(const int amount) {
-	// sanity check
-	if (amount == 0) {
-  	printf("increment can't be 0\n");
-   	return NULL;
-	}
+  // sanity check
+  if (amount == 0) {
+    printf("increment can't be 0\n");
+    return NULL;
+  }
 
-	inst_boilerplate;
+  inst_boilerplate;
 
-	new->amount = amount;
-	new->run = BF_increment_run;
+  new->amount = amount;
+  new->run = BF_increment_run;
+  new->asmify = BF_increment_asm;
 
-	cleanup:
-		return new;
+  cleanup:
+    return new;
 }

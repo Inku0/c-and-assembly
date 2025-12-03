@@ -22,10 +22,8 @@ int optimize_length(const char *program) {
 				// count up the number of elements in the optimizable instruction sequence
 				count++;
 			}
-			if (optimized_count != 0) {
-				// treat the sequence as just one optimized instruction
-				optimized_count++;
-			}
+			// treat the sequence as just one optimized instruction
+			optimized_count++;
 			// move forward to the next instruction
 			i += count;
 		}
@@ -35,10 +33,6 @@ int optimize_length(const char *program) {
 			while (program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) {
 				// count up the number of elements in the optimizable instruction sequence
 				count++;
-			}
-			if (optimized_count != 0) {
-				// treat the sequence as just one optimized instruction
-				optimized_count++;
 			}
 			// treat the sequence as just one optimized instruction
 			optimized_count++;

@@ -11,6 +11,18 @@ void BF_move_run(BF_instruction_t *instruction, int *index) {
   (*index)++;
 }
 
+void BF_move_asm(const BF_instruction_t *instruction, int *index) {
+#ifdef DEBUG
+	printf("\t; instruction: move %d\n", instruction->amount);
+	printf("\t; index %d\n", *index);
+#endif
+	printf("\tpush dword %d\n", instruction->amount);
+	printf("\tcall mem_move\n");
+	printf("\tadd esp, 4\n");
+
+	(*index)++;
+}
+
 BF_instruction_t* BF_move_new(const int units) {
 	// sanity check
 	if (units == 0) {
@@ -22,6 +34,7 @@ BF_instruction_t* BF_move_new(const int units) {
 
 	new->amount = units;
 	new->run = BF_move_run;
+  new->asmify = BF_move_asm;
 
 	cleanup:
 		return new;

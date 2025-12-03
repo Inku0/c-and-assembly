@@ -1,5 +1,5 @@
 CC := clang
-CFLAGS := -Wall -Werror -Wpedantic -m32
+CFLAGS := -Wall -Werror -Wpedantic -m32 -DDEBUG
 LINKER := -fuse-ld=mold
 INC := inc
 
@@ -9,7 +9,7 @@ ASFLAGS := -felf32
 INST_SRCS := $(wildcard src/instructions/*.c)
 INST_OBJS := $(patsubst src/instructions/%.c,obj/instructions/%.o,$(INST_SRCS))
 
-BF_OBJS := obj/bf.o obj/bfi.o obj/bfc.o obj/mem.o obj/simpleStack.o $(INST_OBJS)
+BF_OBJS := obj/bf.o obj/bfi.o obj/bfc.o obj/bft.o obj/mem.o obj/simpleStack.o $(INST_OBJS)
 
 .PHONY: clean all build_objects compile
 

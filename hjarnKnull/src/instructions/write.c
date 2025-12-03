@@ -18,10 +18,24 @@ void BF_write_run(BF_instruction_t *instruction, int *index) {
   (*index)++;
 }
 
+void BF_write_asm(const BF_instruction_t *instruction, int *index) {
+#ifdef DEBUG
+	printf("\t; instruction: .\n");
+	printf("\t; index %d\n", *index);
+#endif
+	printf("\tcall mem_get\n");
+	printf("\tpush eax\n");
+	printf("\tcall putchar\n");
+	printf("\tadd esp, 4\n");
+
+	(*index)++;
+}
+
 BF_instruction_t* BF_write_new(void) {
 	inst_boilerplate;
 
 	new->run = BF_write_run;
+	new->asmify = BF_write_asm;
 
 	cleanup:
 		return new;

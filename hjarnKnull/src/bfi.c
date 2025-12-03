@@ -61,7 +61,7 @@ int *build_loop_map(char *program) {
 		free(loop_map);
 		loop_stack->clear(loop_stack);
 		free(loop_stack);
-		exit(-1);
+	  exit(-1);
 	}
 
 	loop_stack->clear(loop_stack);

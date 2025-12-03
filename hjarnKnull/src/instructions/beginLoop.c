@@ -20,12 +20,26 @@ void BF_beginLoop_run(BF_instruction_t *instruction, int *index) {
   }
 }
 
+void BF_beginLoop_asm(const BF_instruction_t *instruction, int *index) {
+#ifdef DEBUG
+	printf("\t; instruction: [ at %d\n", instruction->loopForwardIndex);
+	printf("\t; index %d\n", *index);
+#endif
+	printf("\tblp_%d:\n", *index);
+	printf("\t\tcall mem_get\n");
+	printf("\t\tcmp eax, 0\n");
+	printf("\t\tje elp_%d\n", instruction->loopForwardIndex+1);
+
+	(*index)++;
+}
+
 BF_instruction_t *BF_beginLoop_new(void) {
 	inst_boilerplate;
 
 	// don't know the index at compile-time => instantiate it with an illegal value
   new->loopForwardIndex = -1;
   new->run = BF_beginLoop_run;
+  new->asmify = BF_beginLoop_asm;
 cleanup:
   return new;
 }
