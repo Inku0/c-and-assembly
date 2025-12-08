@@ -13,11 +13,7 @@ BF_OBJS := obj/bf.o obj/bfi.o obj/bfc.o obj/bft.o obj/mem.o obj/simpleStack.o $(
 
 .PHONY: clean all build_objects compile
 
-all: build_objects collatz compile
-
-collatz:
-	$(AS) $(ASFLAGS) -o obj/x86_32/collatz.o src/x86_32/collatz.asm
-	$(CC) $(CFLAGS) -o bin/collatz obj/x86_32/collatz.o src/asmcollatz.c
+all: build_objects compile
 
 build_objects: $(wildcard src/*.c) $(wildcard inc/*.h)
 	for src in src/*.c; do \

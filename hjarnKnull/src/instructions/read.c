@@ -16,7 +16,7 @@ void BF_read_asm(const BF_instruction_t *instruction, int *index) {
 	(*index)++;
 }
 
-void BF_read_run(BF_instruction_t *instruction, int *index) {
+void BF_read_run(const BF_instruction_t *instruction, int *index) {
 	char c = getc(stdin);
 
 	// sanity check

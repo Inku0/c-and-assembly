@@ -1,15 +1,12 @@
 #include <stdio.h>
-#include <assert.h>
 #include <stdlib.h>
 #include "simpleStack.h"
-#include "coolStack.h"
-#include "macros.h"
 
 #define OOM \
-printf("OOM at %d\n", __LINE__); \
-exit(-1)
+	printf("OOM at %d\n", __LINE__); \
+	exit(-1);
 
-void push(stack_t *stack, int value) {
+void push(stack_t *stack, const int value) {
 	// check if memory has been allocated, otherwise init it
 	if (stack->len == 0) {
 		stack->capacity = 1;
@@ -26,7 +23,7 @@ void push(stack_t *stack, int value) {
 
 	// more elements than capacity allows
 	} else if (stack->len >= stack->capacity) {
-		int new_capacity = stack->capacity * 2;
+		const int new_capacity = stack->capacity * 2;
 
 		// try to get more memory
 		int *new_items = realloc(stack->items, new_capacity * sizeof(int));
@@ -67,9 +64,9 @@ int pop(stack_t *stack) {
 		return value;
 	}
 
-	// if there are 4x less elements than the capacity allows, then reduce capacity by 2x
+	// if there are 4x fewer elements than the capacity allows, then reduce capacity by 2x
 	if (stack->len <= (stack->capacity / 4)) {
-		int new_capacity = (stack->capacity / 2) + (stack->capacity % 2 != 0); // ceiling division
+		const int new_capacity = (stack->capacity / 2) + (stack->capacity % 2 != 0); // ceiling division
 		int *new_items = realloc(stack->items, (new_capacity) * sizeof(int));
 
 		if (new_items == NULL) {

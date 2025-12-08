@@ -8,23 +8,26 @@
 	} \
 	new->free = BF_instruction_free;
 
-// see struct hoiab bf instruktsioone koos lisainfoga, mis võimaldab optimeeringut
-// pmst annab function pointeri, mis omakorda tahab kahte argumenti: viit instruktsiooni objektile ja viit instruktsiooni indeksile
+// this struct describes a BF instruction. Each BF instruction has a run, free, and asmify method
+// furthermore, applicable instructions also contain an amount, which describes, for example, how many units to move or add
 typedef struct BF_instruction_st {
-  void (*run)(struct BF_instruction_st *instruction, int *index);
+	// run executes the instruction
+  void (*run)(const struct BF_instruction_st *instruction, int *index);
+
+	// free frees the heap memory allocated to contain the instruction
   void (*free)(struct BF_instruction_st *instruction);
 
   // emit asm version of instruction
   void (*asmify)(const struct BF_instruction_st *instruction, int *index);
 
   union { // like polymorphism
-    // suurendamise/vähendamise suurus
+    // how much to add or subtract by
     int amount;
-    // mitu kohta liikuda mälus
+    // how many units to move in memory
     int units;
-    // indeks kuhu hüpata, kui getMem() == 0
+    // where to jump when the loop has ended (value is 0)
     int loopForwardIndex;
-    // indeks kuhu hüpata tsükli lõpus, kui getMem() != 0
+    // where to jump when the loop has NOT ended (value is not 0)
     int loopBackwardIndex;
   }; // no name given => any of the "names" can be used
 } BF_instruction_t;

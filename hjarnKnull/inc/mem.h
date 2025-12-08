@@ -1,46 +1,39 @@
 #pragma once
+#include <stdint.h>
 
-// nullib ära terve mälu
+// inits the memory with nulls
 void mem_init(void);
 
-// lisab antud arvu mälu kohale, kus hetkel asub
-int mem_add(int amount);
+// add amount given to current memory index
+// returns the new value
+int mem_add(int8_t amount);
 
-// liigub mälus mingi arvu samme
+// move memory index n units to the left or right
+// returns the new index
 int mem_move(int units);
 
-/*
- * suurendab indeksiga viidatud massiivi elemendi väärtust ühe võrra. Tagastab uue väärtuse.
- */
+// increment memory
+// returns the new value
 int mem_inc(void);
 
-/*
- * vähendab indeksiga viidatud massiivi elemendi väärtust ühe võrra. Tagastab uue väärtuse.
- */
+// decrement memory
+// returns the new value
 int mem_dec(void);
 
-/*
- * liigutab indeksit vasakuke (vähendab selle väärtust ühe võrra). Kui indeks muutub negatiivseks, siis liiguta see massiivi lõppu. Tagastab indeksi uue väärtuse.
- */
+// move memory index 1 unit to the left
+// returns the new index
 int mem_left(void);
 
-/*
- * liigutab indeksit paremale (suurendab selle väärtust ühe võrra). Kui indeks läheb üle massiivi piiri, siis liiguta indeks massiivi algusesse. Tagastab indeksi uue väärtuse.
- */
+// move memory index 1 unit to the right
+// returns the new index
 int mem_right(void);
 
-/*
- * tagastab antud indeksil oleva väärtuse.
- */
+// return value at current index
 int mem_get(void);
 
-/*
- * salvestab väärtuse praegusele indeksile ja tagastab selle väärtuse.
- */
+// save value to current index and also return it
 int mem_set(char v);
 
-/*
- * trükib välja indeksi väärtuse, mälu väärtuse sellel indeksil ja sellele järgnevad 9 väärtust (kui massiivi piir tuleb ette, siis liigu tagasi algusesse). Formaadi näidis:
- * index: 10 mem [10 .. 19]: 7 6 10 -12 55 22 0 0 0 0
- */
+// print debug info
+// example: index: 10 mem [10 .. 19]: 7 6 10 -12 55 22 0 0 0 0
 void mem_printDebug(void);

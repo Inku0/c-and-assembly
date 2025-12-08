@@ -1,7 +1,7 @@
-#include "bfc.h"
 #include <stdlib.h>
 #include <string.h>
 #include "bf.h"
+#include "bfc.h"
 #include "instructions.h"
 #include "simpleStack.h"
 
@@ -132,7 +132,7 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 	return inst_array;
 }
 
-void inline run(BF_instruction_t **inst_array, const int inst_array_length) {
+void run(BF_instruction_t **inst_array, const int inst_array_length) {
 	int i = 0;
 	while (1) {
 		if (i < 0 || i >= inst_array_length) break;

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void BF_move_run(BF_instruction_t *instruction, int *index) {
+void BF_move_run(const BF_instruction_t *instruction, int *index) {
   // move n units (given by instruction struct)
   mem_move(instruction->units);
 
