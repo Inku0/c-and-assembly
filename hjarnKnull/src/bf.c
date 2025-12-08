@@ -10,8 +10,7 @@
 // TODO: perhaps add ->debug() method to every instruction for easier optimizing?
 
 // argument Count and argument Vector
-int main(int argc, char **argv) {
-	// TODO: add flag for interpret/compile
+int main(const int argc, char **argv) {
   if (argc != 3) {
     printf("takes 2 arguments: i | c | t for interpret vs compile vs translate and BF program\n");
     exit(-1);
@@ -20,7 +19,8 @@ int main(int argc, char **argv) {
   if (argv[1][0] == 'i') {
   	interpret(argv[2]);
   } else if (argv[1][0] == 'c') {
-		compile(argv[2]);
+		const BF_program bfCode = compile(argv[2]);
+  	execute(bfCode);
 	} else if (argv[1][0] == 't') {
 		translate(argv[2]);
 	} else {

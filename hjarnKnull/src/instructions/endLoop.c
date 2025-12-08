@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void BF_endLoop_run(BF_instruction_t *instruction, int *index) {
+void BF_endLoop_run(const BF_instruction_t *instruction, int *index) {
   const int val = mem_get();
 
   // anything below 0 is an illegal and illogical value

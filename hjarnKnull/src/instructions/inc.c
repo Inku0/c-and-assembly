@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void BF_increment_run(BF_instruction_t *instruction, int *index) {
+void BF_increment_run(const BF_instruction_t *instruction, int *index) {
   // increase it by the amount given in *instruction
   mem_add(instruction->amount);
 

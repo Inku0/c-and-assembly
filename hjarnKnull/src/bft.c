@@ -1,9 +1,7 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "bfc.h"
 #include "bft.h"
-
-#include <stdio.h>
-
 #include "instructions.h"
 
 #define asmBoilerplate(bfCode) \
@@ -37,11 +35,12 @@ void printTranslate(BF_instruction_t **inst_array, const int inst_array_length, 
 	}
 	printf("\tret\n");
 
-	for (i = 0; i < inst_array_length; i++)
+	for (i = 0; i < inst_array_length; i++) {
 		if (inst_array[i] != NULL) {
 			inst_array[i]->free(inst_array[i]);
 			inst_array[i] = NULL;
 		}
+	}
 	return;
 }
 

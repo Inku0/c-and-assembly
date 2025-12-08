@@ -1,38 +1,54 @@
 CC := clang
-CFLAGS := -Wall -Werror -Wpedantic -m32 -DDEBUG
+CFLAGS := -Wall -Werror -Wpedantic -m32
 LINKER := -fuse-ld=mold
 INC := inc
 
 AS := nasm
 ASFLAGS := -felf32
 
-INST_SRCS := $(wildcard src/instructions/*.c)
-INST_OBJS := $(patsubst src/instructions/%.c,obj/instructions/%.o,$(INST_SRCS))
+SRC_DIR := src
+OBJ_DIR := obj
+BIN_DIR := bin
 
-BF_OBJS := obj/bf.o obj/bfi.o obj/bfc.o obj/bft.o obj/mem.o obj/simpleStack.o $(INST_OBJS)
+INST_DIR := $(SRC_DIR)/instructions
+OBJ_INST_DIR := $(OBJ_DIR)/instructions
 
-.PHONY: clean all build_objects compile
+ASM_DIR := $(SRC_DIR)/x86_32
+OBJ_ASM_DIR := $(OBJ_DIR)/x86_32
 
-all: build_objects collatz compile
+DIRS := $(OBJ_DIR) $(OBJ_INST_DIR) $(OBJ_ASM_DIR) $(BIN_DIR)
 
-collatz:
-	$(AS) $(ASFLAGS) -o obj/x86_32/collatz.o src/x86_32/collatz.asm
-	$(CC) $(CFLAGS) -o bin/collatz obj/x86_32/collatz.o src/asmcollatz.c
+CORE_SRCS := $(wildcard $(SRC_DIR)/*.c)
+CORE_OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(CORE_SRCS))
 
-build_objects: $(wildcard src/*.c) $(wildcard inc/*.h)
-	for src in src/*.c; do \
-		obj=$$(basename $$src .c); \
-		$(CC) $(CFLAGS) -I$(INC) -c -o obj/$$obj.o $$src; \
-	done
+INST_SRCS := $(wildcard $(INST_DIR)/*.c)
+INST_OBJS := $(patsubst $(INST_DIR)/%.c,$(OBJ_INST_DIR)/%.o,$(INST_SRCS))
 
-	mkdir -p obj/instructions
-	for src in src/instructions/*.c; do \
-		obj=$$(basename $$src .c); \
-		$(CC) $(CFLAGS) -I$(INC) -c -o obj/instructions/$$obj.o $$src; \
-	done
+ASM_SRCS := $(wildcard $(ASM_DIR)/*.asm)
+ASM_OBJS := $(patsubst $(ASM_DIR)/%.asm,$(OBJ_ASM_DIR)/%.o,$(ASM_SRCS))
 
-compile: $(wildcard src/*.c) $(wildcard inc/*.h)
-	$(CC) $(CFLAGS) $(LINKER) -I$(INC) -o bin/bf $(BF_OBJS)
+BF_OBJS := $(CORE_OBJS) $(INST_OBJS)
+
+.PHONY: all clean compile_asm
+
+all: $(BIN_DIR)/bf
+
+$(BIN_DIR)/bf: $(BF_OBJS) | $(BIN_DIR)
+	$(CC) $(CFLAGS) $(LINKER) -I$(INC) -o $@ $(BF_OBJS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(INC) -c -o $@ $<
+
+$(OBJ_INST_DIR)/%.o: $(INST_DIR)/%.c | $(OBJ_INST_DIR)
+	$(CC) $(CFLAGS) -I$(INC) -c -o $@ $<
+
+compile_asm: $(ASM_OBJS)
+
+$(OBJ_ASM_DIR)/%.o: $(ASM_DIR)/%.asm | $(OBJ_ASM_DIR)
+	$(AS) $(ASFLAGS) -o $@ $<
+
+$(DIRS):
+	mkdir -p $@
 
 clean:
-	rm -f obj/*.o obj/instructions/*.o bin/*
+	rm -rf $(OBJ_DIR) $(BIN_DIR)/bf

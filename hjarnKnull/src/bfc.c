@@ -1,12 +1,9 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "instructions.h"
-#include "mem.h"
 #include "bf.h"
+#include "bfc.h"
+#include "instructions.h"
 #include "simpleStack.h"
-
-// TODO: move the optimize length to seperate func
 
 int optimize_length(const char *program) {
 	int i = 0;
@@ -14,7 +11,7 @@ int optimize_length(const char *program) {
 
 	// get the optimized length of instructions
 	while (program[i] != 0) {
-		char current = program[i];
+		const char current = program[i];
 
 		if (current == BF_INCREASE || current == BF_DECREASE ) {
 			int count = 1;
@@ -114,7 +111,7 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 				break;
 			}
 			case BF_END_LOOP: {
-				int beginIndex = loop_stack->pop(loop_stack);
+				const int beginIndex = loop_stack->pop(loop_stack);
 				inst_array[write_i] = BF_endLoop_new(beginIndex);
 				inst_array[beginIndex]->loopForwardIndex = write_i;
 				read_i++;
@@ -153,16 +150,26 @@ void run(BF_instruction_t **inst_array, const int inst_array_length) {
 	return;
 }
 
-void compile(const char *program) {
+BF_program compile(const char *program) {
   // length of BF program
-  int program_len = optimize_length(program);
+	const int program_len = optimize_length(program);
 
   // parses the program into a stack of instructions
   BF_instruction_t **inst_array = parse(program, program_len);
 
-  // run takes the edited inst_array and executes the instructions
-  run(inst_array, program_len);
+	// for clarity
+	const BF_program bfCode = {
+		.inst_array = inst_array,
+		.inst_array_length = program_len
+	};
 
-  // free the allocated memory
-  free(inst_array);
+  return bfCode;
+}
+
+void execute(const BF_program bfCode) {
+	// run takes an inst_array and executes the instructions contained therein
+	run(bfCode.inst_array, bfCode.inst_array_length);
+
+	// free the allocated memory
+	free(bfCode.inst_array);
 }

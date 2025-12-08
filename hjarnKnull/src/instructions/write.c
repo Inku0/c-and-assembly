@@ -10,8 +10,8 @@
 #endif
 
 
-void BF_write_run(BF_instruction_t *instruction, int *index) {
-	char c = mem_get();
+void BF_write_run(const BF_instruction_t *instruction, int *index) {
+	const char c = (char)mem_get();
 	printf(PRINT_PARAMS);
 
    // move counter forward by 1
