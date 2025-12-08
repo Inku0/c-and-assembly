@@ -2,30 +2,30 @@
 
 // legal instructions
 enum instructions_e {
-    /* Liiguta mälu indeksit paremale. */
-    BF_RIGHT      = '>',
+  // move the current index to the right
+  BF_RIGHT      = '>',
 
-    /* Liiguta mälu indeksit vasakule. */
-    BF_LEFT       = '<',
+  // move the current index to the left
+  BF_LEFT       = '<',
 
-    /* Suurenda mälu indeksil olevat väärtust. */
-    BF_INCREASE   = '+',
+	// increment the value at the current index
+  BF_INCREASE   = '+',
 
-    /* Vähenda mälu indeksil olevat väärtust. */
-    BF_DECREASE   = '-',
+	// decrement the value at the current index
+  BF_DECREASE   = '-',
 
-    /* Loe kasutajalt sisendit ja salvesta see mäluindeksile. */
-    BF_READ       = ',',
+	// read input from user and save it to the current index
+  BF_READ       = ',',
 
-    /* Trüki välja mälu indeksil olev väärtus char'ina. */
-    BF_PRINT      = '.',
+	// print the current index's value as a char
+  BF_PRINT      = '.',
 
-    /* Tsükli algus. */
-    BF_START_LOOP = '[',
+	// begin a loop
+  BF_START_LOOP = '[',
 
-    /* Tsükli lõpp. */
-    BF_END_LOOP   = ']',
+	// end a loop
+  BF_END_LOOP   = ']',
 
-    /* Trüki silumise informatsioon. */
-    BF_DEBUG      = '#'
+	// print debug info
+  BF_DEBUG      = '#'
 };

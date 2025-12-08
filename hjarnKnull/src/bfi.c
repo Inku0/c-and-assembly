@@ -13,22 +13,21 @@
 
 void handleStdIn(char c) {
 	if (EOF == c) {
-		printf("Sisendi lõpp!\n");
+		printf("received EOF signal!\n");
 		return;
 	}
-	// imaginary else
 	mem_set(c);
 }
 
 // Pre-parse the program to find matching loop brackets
 // Returns an array where loop_map[i] contains the matching bracket index
-int *build_loop_map(char *program) {
-	int program_len = strlen(program);
+int *build_loop_map(const char *program) {
+	const int program_len = (int)strlen(program);
 	int *loop_map = calloc(program_len, sizeof(int));
 	stack_t *loop_stack = create_stack(1000);
 	
 	if (loop_map == NULL) {
-		printf("Failed to allocate loop map\n");
+		printf("OOM while allocating loop map\n");
 		exit(-1);
 	}
 
@@ -70,7 +69,7 @@ int *build_loop_map(char *program) {
 	return loop_map;
 }
 
-void interpret(char *program) {
+void interpret(const char *program) {
 	// Pre-build the loop position map using one stack
 	int *loop_map = build_loop_map(program);
 	
@@ -92,10 +91,10 @@ void interpret(char *program) {
 				mem_left();
 				break;
 			case BF_READ:
-				handleStdIn(getc(stdin));
+				handleStdIn((char)getchar());
 				break;
 			case BF_PRINT:
-				c = mem_get();
+				c = (char)mem_get();
 				printf(PRINT_PARAMS);
 				break;
 			case BF_START_LOOP:
@@ -114,10 +113,10 @@ void interpret(char *program) {
 				mem_printDebug();
 				break;
 			default:
+				// default behavior is to ignore unknown symbols
 				break;
-				/* Ignoreerime sümboleid, mida me ei tunne. */
 		}
-
+		// increment index
 		i++;
 	}
 
