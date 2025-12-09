@@ -16,9 +16,11 @@ void BF_move_asm(const BF_instruction_t *instruction, int *index) {
 	printf("\t; instruction: move %d\n", instruction->amount);
 	printf("\t; index %d\n", *index);
 #endif
-	printf("\tpush dword %d\n", instruction->amount);
-	printf("\tcall mem_move\n");
-	printf("\tadd esp, 4\n");
+	if (instruction->units < 0) {
+		printf("\tsub edi, %d\n", abs(instruction->units));
+	} else {
+		printf("\tadd edi, %d\n", instruction->units);
+	}
 
 	(*index)++;
 }

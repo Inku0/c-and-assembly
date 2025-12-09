@@ -1,5 +1,5 @@
 CC := clang
-CFLAGS := -Wall -Werror -Wpedantic -m32
+CFLAGS := -Wall -Werror -Wpedantic -m32 -DDEBUG
 LINKER := -fuse-ld=mold
 INC := inc
 

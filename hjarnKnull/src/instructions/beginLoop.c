@@ -26,7 +26,8 @@ void BF_beginLoop_asm(const BF_instruction_t *instruction, int *index) {
 	printf("\t; index %d\n", *index);
 #endif
 	printf("\tblp_%d:\n", *index);
-	printf("\t\tcall mem_get\n");
+	printf("\t\tmov eax, 0\n"); // why??? optimization?
+	printf("\t\tmov al, [esi+edi]\n");
 	printf("\t\tcmp eax, 0\n");
 	printf("\t\tje elp_%d\n", instruction->loopForwardIndex+1);
 

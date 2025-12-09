@@ -16,9 +16,13 @@ void BF_increment_asm(const BF_instruction_t *instruction, int *index) {
 	printf("\t; instruction: add %d\n", instruction->amount);
 	printf("\t; index %d\n", *index);
 #endif
-	printf("\tpush dword %d\n", instruction->amount);
-	printf("\tcall mem_add\n");
-	printf("\tadd esp, 4\n");
+	printf("\tmov al, [esi+edi]\n");
+	if (instruction->amount < 0) {
+		printf("\tsub al, %d\n", abs(instruction->amount));
+	} else {
+		printf("\tadd al, %d\n", instruction->amount);
+	}
+	printf("\tmov [esi+edi], al\n");
 
 	(*index)++;
 }
