@@ -23,10 +23,11 @@ void BF_write_asm(const BF_instruction_t *instruction, int *index) {
 	printf("\t; instruction: .\n");
 	printf("\t; index %d\n", *index);
 #endif
-	printf("\tmov eax, [esi+edi]\n");
-	printf("\tpush eax\n");
-	printf("\tcall putchar\n");
-	printf("\tadd esp, 4\n");
+	printf("\tmov eax, 4\n");
+	printf("\tmov ebx, 1\n");
+	printf("\tlea ecx, [esi+edi]\n");
+	printf("\tmov edx, 1\n");
+	printf("\tint 0x80\n");
 
 	(*index)++;
 }

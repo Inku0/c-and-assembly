@@ -8,10 +8,23 @@ void BF_read_asm(const BF_instruction_t *instruction, int *index) {
 	printf("\t; instruction: ,\n");
 	printf("\t; index %d\n", *index);
 #endif
-	printf("\tgetchar_loop_%d:\n", *index);
-	printf("\t\tcall getchar\n");
+	printf("\tread_loop_%d:\n", *index);
+	printf("\t\tsub esp, 1\n");
+	printf("\t\tmov eax, 3\n");
+	printf("\t\tmov ebx, 0\n");
+	printf("\t\tmov ecx, esp\n");
+	printf("\t\tmov edx, 1\n");
+	printf("\t\tint 0x80\n");
+
+	printf("\t\tcmp eax, 1\n");
+	printf("\t\tjne exit\n");
+
+	printf("\t\tmov eax, [esp]\n");
+	printf("\t\tadd esp, 1\n");
+
 	printf("\t\tcmp eax, 10\n"); // \n ascii value is 10
-	printf("\t\tje getchar_loop_%d\n", *index);
+	printf("\t\tje read_loop_%d\n", *index);
+
 	printf("\t\tmov [esi+edi], eax\n");
 	// loop is needed to handle \n aka pressing enter
 

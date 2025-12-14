@@ -8,8 +8,6 @@
 	printf("; translated from BF: "); \
 	printf("%s \n", bfCode); \
 	printf("global main\n"); \
-	printf("extern putchar\n"); \
-	printf("extern getchar\n"); \
 	printf("section .text\n"); \
 	printf("main:\n"); \
 	printf("\tpush esi\n"); \
@@ -42,9 +40,10 @@ void printTranslate(BF_instruction_t **inst_array, const int inst_array_length, 
 	printf("\tpop edi\n");
 
 	// exit(0)
-	printf("\tmov eax, 1\n");
-	printf("\txor ebx, ebx\n");
-	printf("\tint 0x80\n");
+	printf("\texit:\n");
+	printf("\t\tmov eax, 1\n");
+	printf("\t\txor ebx, ebx\n");
+	printf("\t\tint 0x80\n");
 
 	for (i = 0; i < inst_array_length; i++) {
 		if (inst_array[i] != NULL) {
