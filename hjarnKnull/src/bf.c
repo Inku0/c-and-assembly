@@ -4,6 +4,7 @@
 #include "bfc.h"
 #include "bfi.h"
 #include "bft.h"
+#include "mem.h"
 
 
 // TODO: optimize to multiple passes
@@ -15,6 +16,8 @@ int main(const int argc, char **argv) {
     printf("takes 2 arguments: i | c | t for interpret vs compile vs translate and BF program\n");
     exit(-1);
   }
+
+	mem_init();
 
   if (argv[1][0] == 'i') {
   	interpret(argv[2]);

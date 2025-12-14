@@ -30,7 +30,7 @@ int mem_move(const int units) {
 	if (new_index < 0) {
 		current_index = 0;
 	}
-	else if (new_index > MEM_LEN) {
+	else if (new_index >= MEM_LEN) {
 		current_index = new_index - MEM_LEN; // wrap-around
 	}
 	else {
