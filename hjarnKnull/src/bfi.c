@@ -11,7 +11,9 @@
   #define PRINT_PARAMS "%c", c
 #endif
 
-void handleStdIn(char c) {
+#define LOOP_STACK_LEN 1000
+
+void handleStdIn(const char c) {
 	if (EOF == c) {
 		printf("received EOF signal!\n");
 		return;
@@ -24,11 +26,11 @@ void handleStdIn(char c) {
 int *build_loop_map(const char *program) {
 	const int program_len = (int)strlen(program);
 	int *loop_map = calloc(program_len, sizeof(int));
-	stack_t *loop_stack = create_stack(1000);
+	stack_t *loop_stack = create_stack(LOOP_STACK_LEN); // hard-coded?
 	
 	if (loop_map == NULL) {
-		printf("OOM while allocating loop map\n");
-		exit(-1);
+		fprintf(stderr, "OOM while allocating loop map\n");
+		exit(EXIT_FAILURE);
 	}
 
 	// Initialize all positions to -1 (no match)
@@ -42,13 +44,20 @@ int *build_loop_map(const char *program) {
 			loop_stack->push(loop_stack, i);
 		} else if (program[i] == BF_END_LOOP) {
 			if (loop_stack->isEmpty(loop_stack)) {
-				printf("Unmatched ']' at position %d\n", i);
+				fprintf(stderr, "Unmatched ']' at position %d\n", i);
 				free(loop_map);
 				loop_stack->clear(loop_stack);
 				free(loop_stack);
-				exit(-1);
+				return NULL;
 			}
-			int start_pos = loop_stack->pop(loop_stack);
+			int start_pos = 0;
+			const bool success = loop_stack->pop(loop_stack, &start_pos);
+			if (!success) {
+				free(loop_map);
+				loop_stack->clear(loop_stack);
+				free(loop_stack);
+				return NULL;
+			}
 			// Store bidirectional mapping
 			loop_map[start_pos] = i;  // '[' maps to ']'
 			loop_map[i] = start_pos;  // ']' maps to '['
@@ -60,7 +69,7 @@ int *build_loop_map(const char *program) {
 		free(loop_map);
 		loop_stack->clear(loop_stack);
 		free(loop_stack);
-	  exit(-1);
+	  return NULL;
 	}
 
 	loop_stack->clear(loop_stack);
@@ -72,6 +81,11 @@ int *build_loop_map(const char *program) {
 void interpret(const char *program) {
 	// Pre-build the loop position map using one stack
 	int *loop_map = build_loop_map(program);
+	if (loop_map == NULL) {
+		fprintf(stderr, "Encountered an error while building loop map\n");
+		free(loop_map);
+		return;
+	}
 	
 	int i = 0;
 	char c;

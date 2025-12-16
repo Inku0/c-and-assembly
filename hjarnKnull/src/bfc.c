@@ -2,6 +2,9 @@
 #include <string.h>
 #include "bf.h"
 #include "bfc.h"
+
+#include <stdio.h>
+
 #include "instructions.h"
 #include "simpleStack.h"
 
@@ -111,7 +114,11 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 				break;
 			}
 			case BF_END_LOOP: {
-				const int beginIndex = loop_stack->pop(loop_stack);
+				int beginIndex = 0;
+				const bool success = loop_stack->pop(loop_stack, &beginIndex);
+				if (!success) {
+					return NULL;
+				}
 				inst_array[write_i] = BF_endLoop_new(beginIndex);
 				inst_array[beginIndex]->loopForwardIndex = write_i;
 				read_i++;
@@ -156,6 +163,15 @@ BF_program compile(const char *program) {
 
   // parses the program into a stack of instructions
   BF_instruction_t **inst_array = parse(program, program_len);
+
+	if (inst_array == NULL) {
+		fprintf(stderr, "failed to parse program\n");
+		const BF_program bfCode = {
+			.inst_array = NULL,
+			.inst_array_length = 0,
+		};
+		return bfCode;
+	}
 
 	// for clarity
 	const BF_program bfCode = {
