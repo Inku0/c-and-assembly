@@ -44,7 +44,7 @@ int *build_loop_map(const char *program) {
 			loop_stack->push(loop_stack, i);
 		} else if (program[i] == BF_END_LOOP) {
 			if (loop_stack->isEmpty(loop_stack)) {
-				fprintf(stderr, "Unmatched ']' at position %d\n", i);
+				fprintf(stderr, "Unmatched ']' at position %d\n", i + 1);
 				free(loop_map);
 				loop_stack->clear(loop_stack);
 				free(loop_stack);
