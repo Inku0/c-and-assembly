@@ -8,7 +8,7 @@ typedef struct stack_st {
 	int *items;
 
 	// push a value to the stack and return it
-	void (*push)(struct stack_st *stack, int value);
+	int (*push)(struct stack_st *stack, int value);
 
 	// remove the top-most value from the stack and set *value to its value, returns false for a stack underflow
 	bool (*pop)(struct stack_st *stack, int *value);

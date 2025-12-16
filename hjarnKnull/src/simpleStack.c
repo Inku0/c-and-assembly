@@ -6,7 +6,7 @@
 	fprintf(stderr, "OOM at %d\n", __LINE__); \
 	exit(EXIT_FAILURE);
 
-void push(stack_t *stack, const int value) {
+int push(stack_t *stack, const int value) {
 	// check if memory has been allocated, otherwise init it
 	if (stack->len == 0) {
 		stack->capacity = 1;
@@ -42,14 +42,14 @@ void push(stack_t *stack, const int value) {
 	// increase len as well
 	stack->len++;
 
-	return;
+	return stack->items[stack->len - 1];
 }
 
 bool pop(stack_t *stack, int *out) {
 	// if it's 0 or less, then it's empty
 	// or if its pointer is NULL, it's also empty
 	if (stack->len <= 0 || stack->items == NULL) {
-		fprintf(stderr, "Stack underflow!!!\n");
+		// fprintf(stderr, "Stack underflow!\n");
 		out = NULL;
 		return false;
 	}
@@ -62,8 +62,7 @@ bool pop(stack_t *stack, int *out) {
 		stack->capacity = 0;
 		free(stack->items);
 		stack->items = NULL; // to prevent a dangling pointer
-		*out = value;
-		return true;
+		goto control;
 	}
 
 	// if there are 4x fewer elements than the capacity allows, then reduce capacity by 2x
@@ -79,8 +78,11 @@ bool pop(stack_t *stack, int *out) {
 		stack->items = new_items;
 	}
 
-	*out = value;
-	return true;
+	control:
+		if (out) {
+			*out = value;
+		}
+		return true;
 }
 
 bool isEmpty(stack_t *stack) {

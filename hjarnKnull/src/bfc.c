@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+#include "bfi.h"
 #include "instructions.h"
 #include "simpleStack.h"
 
@@ -114,29 +115,60 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 				break;
 			}
 			case BF_END_LOOP: {
-				int beginIndex = 0;
+				int beginIndex = -1;
+				// allocate the end-loop instruction first so we have a valid error buffer to write into
 				const bool success = loop_stack->pop(loop_stack, &beginIndex);
 				if (!success) {
-					return NULL;
+					fprintf(stderr, "unmatched ']' at %d\n", read_i + 1); // +1 to get the logical position (starting at 1)
+					for (int k = 0; k < write_i; k++) {
+						if (inst_array[k] != NULL) {
+							inst_array[k]->free(inst_array[k]);
+							inst_array[k] = NULL;
+						}
+					}
+					free(inst_array);
+					inst_array = NULL;
+					goto cleanup;
 				}
+
 				inst_array[write_i] = BF_endLoop_new(beginIndex);
-				inst_array[beginIndex]->loopForwardIndex = write_i;
+				if (beginIndex >= 0 && inst_array[beginIndex] != NULL) {
+					inst_array[beginIndex]->loopForwardIndex = write_i;
+				}
 				read_i++;
 				break;
 			}
 			default:
 				// default behavior is to silently ignore unknown symbols
-				--write_i; // counteract the default ++ behavior
-				read_i++;
-				break;
+				// but we go beyond that
+				fprintf(stderr, "encountered unknown symbol '%c' at %d\n", program[read_i], read_i + 1); // +1 to get the logical position (starting at 1)
+				free(inst_array);
+				inst_array = NULL;
+				goto cleanup;
+				// --write_i; // counteract the default ++ behavior
+				// read_i++;
+				// break;
 		}
 		write_i++;
 	}
 
-	loop_stack->clear(loop_stack);
-	free(loop_stack);
+	if (loop_stack->len != 0) {
+		fprintf(stderr, "unmatched '['\n");
+		for (int k = 0; k < write_i; k++) {
+			if (inst_array[k] != NULL) {
+				inst_array[k]->free(inst_array[k]);
+				inst_array[k] = NULL;
+			}
+		}
+		free(inst_array);
+		inst_array = NULL;
+	}
 
-	return inst_array;
+	cleanup:
+		loop_stack->clear(loop_stack);
+		free(loop_stack);
+		loop_stack = NULL;
+		return inst_array;
 }
 
 void run(BF_instruction_t **inst_array, const int inst_array_length) {
@@ -165,7 +197,6 @@ BF_program compile(const char *program) {
   BF_instruction_t **inst_array = parse(program, program_len);
 
 	if (inst_array == NULL) {
-		fprintf(stderr, "failed to parse program\n");
 		const BF_program bfCode = {
 			.inst_array = NULL,
 			.inst_array_length = 0,
@@ -176,7 +207,7 @@ BF_program compile(const char *program) {
 	// for clarity
 	const BF_program bfCode = {
 		.inst_array = inst_array,
-		.inst_array_length = program_len
+		.inst_array_length = program_len,
 	};
 
   return bfCode;

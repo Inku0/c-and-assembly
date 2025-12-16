@@ -15,18 +15,15 @@
 
 void handleStdIn(const char c) {
 	if (EOF == c) {
-		printf("received EOF signal!\n");
 		return;
 	}
 	mem_set(c);
 }
 
-// Pre-parse the program to find matching loop brackets
-// Returns an array where loop_map[i] contains the matching bracket index
 int *build_loop_map(const char *program) {
 	const int program_len = (int)strlen(program);
 	int *loop_map = calloc(program_len, sizeof(int));
-	stack_t *loop_stack = create_stack(LOOP_STACK_LEN); // hard-coded?
+	stack_t *loop_stack = create_stack(program_len); // safe estimate
 	
 	if (loop_map == NULL) {
 		fprintf(stderr, "OOM while allocating loop map\n");
@@ -65,7 +62,6 @@ int *build_loop_map(const char *program) {
 	}
 
 	if (!loop_stack->isEmpty(loop_stack)) {
-		printf("Unmatched '[' in program\n");
 		free(loop_map);
 		loop_stack->clear(loop_stack);
 		free(loop_stack);
