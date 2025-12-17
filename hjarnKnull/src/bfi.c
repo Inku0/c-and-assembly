@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../inc/loop_map.h"
+#include "bf.h"
 #include "mem.h"
 #include "simpleStack.h"
-#include "bf.h"
 
 #ifdef DEBUG
   #define PRINT_PARAMS "'%c' (kood = %d)\n", c, c
@@ -20,68 +21,9 @@ void handleStdIn(const char c) {
 	mem_set(c);
 }
 
-int *build_loop_map(const char *program) {
-	const int program_len = (int)strlen(program);
-	int *loop_map = calloc(program_len, sizeof(int));
-	stack_t *loop_stack = create_stack(program_len); // safe estimate
-	
-	if (loop_map == NULL) {
-		fprintf(stderr, "OOM while allocating loop map\n");
-		exit(EXIT_FAILURE);
-	}
-
-	// Initialize all positions to -1 (no match)
-	for (int i = 0; i < program_len; i++) {
-		loop_map[i] = -1;
-	}
-
-	// Scan through program and match brackets
-	for (int i = 0; i < program_len; i++) {
-		if (program[i] == BF_START_LOOP) {
-			loop_stack->push(loop_stack, i);
-		} else if (program[i] == BF_END_LOOP) {
-			if (loop_stack->isEmpty(loop_stack)) {
-				fprintf(stderr, "Unmatched ']' at position %d\n", i + 1);
-				free(loop_map);
-				loop_stack->clear(loop_stack);
-				free(loop_stack);
-				return NULL;
-			}
-			int start_pos = 0;
-			const bool success = loop_stack->pop(loop_stack, &start_pos);
-			if (!success) {
-				free(loop_map);
-				loop_stack->clear(loop_stack);
-				free(loop_stack);
-				return NULL;
-			}
-			// Store bidirectional mapping
-			loop_map[start_pos] = i;  // '[' maps to ']'
-			loop_map[i] = start_pos;  // ']' maps to '['
-		}
-	}
-
-	if (!loop_stack->isEmpty(loop_stack)) {
-		free(loop_map);
-		loop_stack->clear(loop_stack);
-		free(loop_stack);
-	  return NULL;
-	}
-
-	loop_stack->clear(loop_stack);
-	free(loop_stack);
-	
-	return loop_map;
-}
-
 void interpret(const char *program) {
 	// Pre-build the loop position map using one stack
-	int *loop_map = build_loop_map(program);
-	if (loop_map == NULL) {
-		fprintf(stderr, "Encountered an error while building loop map\n");
-		free(loop_map);
-		return;
-	}
+	const loop_map loop_map = build_loop_map(program, strlen(program));
 	
 	int i = 0;
 	char c;
@@ -110,13 +52,13 @@ void interpret(const char *program) {
 			case BF_START_LOOP:
 				// If current cell is 0, jump forward to matching ']'
 				if (mem_get() == 0) {
-					i = loop_map[i];
+					i = loop_map.loops[i].jump;
 				}
 				break;
 			case BF_END_LOOP:
 				// If current cell is not 0, jump back to matching '['
 				if (mem_get() != 0) {
-					i = loop_map[i];
+					i = loop_map.loops[i].jump;
 				}
 				break;
 			case BF_DEBUG:
@@ -129,6 +71,4 @@ void interpret(const char *program) {
 		// increment index
 		i++;
 	}
-
-	free(loop_map);
 }

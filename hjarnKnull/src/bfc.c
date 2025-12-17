@@ -9,6 +9,8 @@
 #include "instructions.h"
 #include "simpleStack.h"
 
+// TODO: treat add(0) and move(0) as non-operations
+
 int optimize_length(const char *program) {
 	int i = 0;
 	int optimized_count = 0;
