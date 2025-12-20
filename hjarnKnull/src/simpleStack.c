@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include "simpleStack.h"
 
-#define OOM \
-	fprintf(stderr, "OOM at %d\n", __LINE__); \
-	exit(EXIT_FAILURE);
-
 int push(stack_t *stack, const int value) {
 	// check if memory has been allocated, otherwise init it
 	if (stack->len == 0) {

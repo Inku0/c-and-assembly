@@ -2,6 +2,10 @@
 
 #include <stdbool.h>
 
+#define OOM \
+fprintf(stderr, "OOM at %d in file %s\n", __LINE__, __FILE__); \
+exit(EXIT_FAILURE);
+
 typedef struct stack_st {
 	int len;
 	int capacity;

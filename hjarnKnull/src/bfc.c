@@ -7,54 +7,14 @@
 
 #include "bfi.h"
 #include "instructions.h"
+#include "loop_map.h"
 #include "simpleStack.h"
 
 // TODO: treat add(0) and move(0) as non-operations
 
-int optimize_length(const char *program) {
-	int i = 0;
-	int optimized_count = 0;
-
-	// get the optimized length of instructions
-	while (program[i] != 0) {
-		const char current = program[i];
-
-		if (current == BF_INCREASE || current == BF_DECREASE ) {
-			int count = 1;
-			while (program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) {
-				// count up the number of elements in the optimizable instruction sequence
-				count++;
-			}
-			// treat the sequence as just one optimized instruction
-			optimized_count++;
-			// move forward to the next instruction
-			i += count;
-		}
-
-		else if (current == BF_RIGHT || current == BF_LEFT) {
-			int count = 1;
-			while (program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) {
-				// count up the number of elements in the optimizable instruction sequence
-				count++;
-			}
-			// treat the sequence as just one optimized instruction
-			optimized_count++;
-			// move forward to the next instruction
-			i += count;
-		}
-
-		else {
-			// non-optimizable instruction, just count it as is
-			optimized_count++;
-			i++;
-		}
-	}
-	return optimized_count;
-}
-
 // why the double pointer?
 BF_instruction_t **parse(const char *program, const int program_len) {
-	stack_t *loop_stack = create_stack(30000);
+	const loop_map *loop_map = build_optimized_loop_map(program, program_len);
 
 	// a stack which contains optimized_count number of pointers
 	// calloc inits all values to 0
@@ -111,66 +71,23 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 				break;
 			case BF_START_LOOP: {
 				// TODO: optimize cycle immediately if it doesn't depend on user input (is fully deterministic)
-				inst_array[write_i] = BF_beginLoop_new();
-				loop_stack->push(loop_stack, write_i);
+				inst_array[write_i] = BF_beginLoop_new(loop_map->loops[write_i].jump);
 				read_i++;
 				break;
 			}
 			case BF_END_LOOP: {
-				int beginIndex = -1;
-				// allocate the end-loop instruction first so we have a valid error buffer to write into
-				const bool success = loop_stack->pop(loop_stack, &beginIndex);
-				if (!success) {
-					fprintf(stderr, "unmatched ']' at %d\n", read_i + 1); // +1 to get the logical position (starting at 1)
-					for (int k = 0; k < write_i; k++) {
-						if (inst_array[k] != NULL) {
-							inst_array[k]->free(inst_array[k]);
-							inst_array[k] = NULL;
-						}
-					}
-					free(inst_array);
-					inst_array = NULL;
-					goto cleanup;
-				}
-
-				inst_array[write_i] = BF_endLoop_new(beginIndex);
-				if (beginIndex >= 0 && inst_array[beginIndex] != NULL) {
-					inst_array[beginIndex]->loopForwardIndex = write_i;
-				}
+				inst_array[write_i] = BF_endLoop_new(loop_map->loops[write_i].jump);
 				read_i++;
 				break;
 			}
 			default:
-				// default behavior is to silently ignore unknown symbols
-				// but we go beyond that
-				fprintf(stderr, "encountered unknown symbol '%c' at %d\n", program[read_i], read_i + 1); // +1 to get the logical position (starting at 1)
-				free(inst_array);
-				inst_array = NULL;
-				goto cleanup;
-				// --write_i; // counteract the default ++ behavior
-				// read_i++;
-				// break;
+				// check.c guarantees that no unknown symbols make it here
+				break;
 		}
 		write_i++;
 	}
-
-	if (loop_stack->len != 0) {
-		fprintf(stderr, "unmatched '['\n");
-		for (int k = 0; k < write_i; k++) {
-			if (inst_array[k] != NULL) {
-				inst_array[k]->free(inst_array[k]);
-				inst_array[k] = NULL;
-			}
-		}
-		free(inst_array);
-		inst_array = NULL;
-	}
-
-	cleanup:
-		loop_stack->clear(loop_stack);
-		free(loop_stack);
-		loop_stack = NULL;
-		return inst_array;
+	free((void*)loop_map);
+	return inst_array;
 }
 
 void run(BF_instruction_t **inst_array, const int inst_array_length) {

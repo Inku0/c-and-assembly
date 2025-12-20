@@ -23,7 +23,7 @@ void handleStdIn(const char c) {
 
 void interpret(const char *program) {
 	// Pre-build the loop position map using one stack
-	const loop_map loop_map = build_loop_map(program, strlen(program));
+	const loop_map *loop_map = build_loop_map(program, strlen(program));
 	
 	int i = 0;
 	char c;
@@ -52,13 +52,13 @@ void interpret(const char *program) {
 			case BF_START_LOOP:
 				// If current cell is 0, jump forward to matching ']'
 				if (mem_get() == 0) {
-					i = loop_map.loops[i].jump;
+					i = loop_map->loops[i].jump;
 				}
 				break;
 			case BF_END_LOOP:
 				// If current cell is not 0, jump back to matching '['
 				if (mem_get() != 0) {
-					i = loop_map.loops[i].jump;
+					i = loop_map->loops[i].jump;
 				}
 				break;
 			case BF_DEBUG:
@@ -71,4 +71,5 @@ void interpret(const char *program) {
 		// increment index
 		i++;
 	}
+	free((void*)loop_map);
 }

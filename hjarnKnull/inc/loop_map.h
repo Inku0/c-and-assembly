@@ -18,4 +18,10 @@ typedef struct {
 } loop_map;
 
 // returns a loop_map parsed from BF code
-loop_map build_loop_map(const char *program, const size_t program_len);
+loop_map *build_loop_map(const char *program, const size_t program_len);
+
+// necessary for compiling an optimized version
+// treats optimizable instructions as just a single instruction in order to get the correct position for loops
+loop_map *build_optimized_loop_map(const char* program, const size_t optimized_program_len);
+
+void print_loop_map(const loop_map *loop_map);
