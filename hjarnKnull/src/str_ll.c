@@ -4,6 +4,7 @@
 
 #include "str_ll.h"
 
+#include "bf.h"
 #include "simpleStack.h"
 
 // inspiration from https://www.geeksforgeeks.org/dsa/convert-a-string-to-a-singly-linked-list/
@@ -21,6 +22,32 @@ void free_sll(Node *head) {
 		Node *tmp = head;
 		head = head->next;
 		free(tmp);
+	}
+}
+
+void compress_consecutive(Node *head) {
+	if (!head) return;
+	Node *curr = head;
+
+	while (curr && curr->next) {
+		if (curr->data == BF_INCREASE || curr->data == BF_DECREASE) {
+			while (curr->next && (curr->next->data == BF_INCREASE || curr->next->data == BF_DECREASE)) {
+				Node *dup = curr->next;
+				curr->next = dup->next;
+				free(dup);
+			}
+			curr = curr->next;
+		}
+		else if (curr->data == BF_LEFT || curr->data == BF_RIGHT) {
+			while (curr->next && (curr->next->data == BF_LEFT || curr->next->data == BF_RIGHT)) {
+				Node *dup = curr->next;
+				curr->next = dup->next;
+				free(dup);
+			}
+			curr = curr->next;
+		} else {
+			curr = curr->next;
+		}
 	}
 }
 

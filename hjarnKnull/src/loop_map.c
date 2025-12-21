@@ -92,31 +92,6 @@ loop_map *build_loop_map(const char* program, const size_t program_len) {
 	return lm;
 }
 
-void compress_consecutive(Node *head) {
-	if (!head) return;
-	Node *curr = head;
-
-	while (curr && curr->next) {
-		if (curr->data == BF_INCREASE || curr->data == BF_DECREASE) {
-			while (curr->next && (curr->next->data == BF_INCREASE || curr->next->data == BF_DECREASE)) {
-				Node *dup = curr->next;
-				curr->next = dup->next;
-				free(dup);
-			}
-			curr = curr->next;
-		}
-		else if (curr->data == BF_LEFT || curr->data == BF_RIGHT) {
-			while (curr->next && (curr->next->data == BF_LEFT || curr->next->data == BF_RIGHT)) {
-				Node *dup = curr->next;
-				curr->next = dup->next;
-				free(dup);
-			}
-			curr = curr->next;
-		} else {
-			curr = curr->next;
-		}
-	}
-}
 // builds a loop map in three passes
 // first pass to convert optimizable instructions to a single instruction (+++ -> +). this loses data, but that's not a problem here
 // second pass to count up loops

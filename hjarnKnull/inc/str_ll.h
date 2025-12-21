@@ -12,3 +12,4 @@ void print_list(const Node *head);
 void free_list(Node *head);
 size_t sll_length(Node *head);
 void free_sll(Node *head);
+void compress_consecutive(Node *head);
