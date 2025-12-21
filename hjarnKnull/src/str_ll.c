@@ -104,11 +104,3 @@ void print_list(const Node *head) {
 	}
 	printf("\n");
 }
-
-void free_list(Node *head) {
-	while (head) {
-		Node *next = head->next;
-		free(head);
-		head = next;
-	}
-}
