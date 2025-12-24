@@ -7,6 +7,14 @@
 #include "bf.h"
 #include "simpleStack.h"
 
+static void free_range(Node *start, Node *end_exclusive) {
+	while (start && start != end_exclusive) {
+		Node *tmp = start;
+		start = start->next;
+		free(tmp);
+	}
+}
+
 // inspiration from https://www.geeksforgeeks.org/dsa/convert-a-string-to-a-singly-linked-list/
 
 // helper: compute length of SLL
@@ -25,30 +33,93 @@ void free_sll(Node *head) {
 	}
 }
 
-void compress_consecutive(Node *head) {
-	if (!head) return;
+Node *compress_consecutive(Node *head) {
+	if (!head) return NULL;
+
+	Node *prev = NULL;
 	Node *curr = head;
 
-	while (curr && curr->next) {
+	while (curr) {
 		if (curr->data == BF_INCREASE || curr->data == BF_DECREASE) {
-			while (curr->next && (curr->next->data == BF_INCREASE || curr->next->data == BF_DECREASE)) {
-				Node *dup = curr->next;
-				curr->next = dup->next;
-				free(dup);
+			Node *block_start = curr;
+			Node *block_end = curr;
+			Node *runner = curr;
+			int count = 0;
+
+			while (runner && (runner->data == BF_INCREASE || runner->data == BF_DECREASE)) {
+				count += runner->data == BF_INCREASE ? 1 : -1;
+				block_end = runner;
+				runner = runner->next;
 			}
-			curr = curr->next;
-		}
-		else if (curr->data == BF_LEFT || curr->data == BF_RIGHT) {
-			while (curr->next && (curr->next->data == BF_LEFT || curr->next->data == BF_RIGHT)) {
-				Node *dup = curr->next;
-				curr->next = dup->next;
-				free(dup);
+
+			if (count == 0) {
+				Node *after = runner;
+
+				if (prev) {
+					prev->next = after;
+					free_range(block_start, after);
+					curr = after;
+				} else {
+					if (!after) {
+						free_range(block_start, NULL);
+						return NULL;
+					}
+					free_range(block_start->next, after);
+					block_start->data = after->data;
+					block_start->next = after->next;
+					free(after);
+					curr = block_start;
+				}
+				continue;
 			}
-			curr = curr->next;
-		} else {
-			curr = curr->next;
+
+			prev = block_end;
+			curr = runner;
+			continue;
 		}
+
+		if (curr->data == BF_LEFT || curr->data == BF_RIGHT) {
+			Node *block_start = curr;
+			Node *block_end = curr;
+			Node *runner = curr;
+			int count = 0;
+
+			while (runner && (runner->data == BF_LEFT || runner->data == BF_RIGHT)) {
+				count += runner->data == BF_RIGHT ? 1 : -1;
+				block_end = runner;
+				runner = runner->next;
+			}
+
+			if (count == 0) {
+				Node *after = runner;
+
+				if (prev) {
+					prev->next = after;
+					free_range(block_start, after);
+					curr = after;
+				} else {
+					if (!after) {
+						free_range(block_start, NULL);
+						return NULL;
+					}
+					free_range(block_start->next, after);
+					block_start->data = after->data;
+					block_start->next = after->next;
+					free(after);
+					curr = block_start;
+				}
+				continue;
+			}
+
+			prev = block_end;
+			curr = runner;
+			continue;
+		}
+
+		prev = curr;
+		curr = curr->next;
 	}
+	return head;
 }
 
 Node* add(const char data) {

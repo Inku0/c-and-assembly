@@ -71,5 +71,5 @@ void interpret(const char *program) {
 		// increment index
 		i++;
 	}
-	free((void*)loop_map);
+	free_loop_map((void*)loop_map);
 }

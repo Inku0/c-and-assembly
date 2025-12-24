@@ -11,7 +11,7 @@
 bool check(const char* program, const size_t program_len) {
 	const loop_map *loop_map = build_loop_map(program, program_len);
 	// find which loop is unmatched
-	for (int i = 0; i <= program_len; ++i) {
+	for (int i = 0; i < program_len; ++i) {
 		if (loop_map->loops[i].jump == -1) {
 			fprintf(stderr, "unmatched '%c' at %d\n", loop_map->loops[i].type, loop_map->loops[i].position);
 			free((void*)loop_map);
@@ -60,6 +60,6 @@ bool check(const char* program, const size_t program_len) {
 		}
 	}
 
-	free((void*)loop_map);
+	free_loop_map((void*)loop_map);
 	return true;
 }

@@ -25,4 +25,4 @@ void free_sll(Node *head);
 
 // optimize the string linked list by combining optimizable instructions.
 // +++. becomes +.
-void compress_consecutive(Node *head);
+Node* compress_consecutive(Node *head);

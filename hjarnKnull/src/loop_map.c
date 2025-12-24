@@ -5,7 +5,8 @@
 #include <string.h>
 
 #include "bf.h"
-#include "str_ll.h"
+
+#define DEBUG
 
 void print_loop_map(const loop_map *loop_map) {
   for (int i = 0; i <= 1023; i++) {
@@ -19,7 +20,11 @@ void print_loop_map(const loop_map *loop_map) {
 loop_map *build_loop_map(const char* program, const size_t program_len) {
 	int num_begin = 0;
 	int num_end = 0;
-	loop loops[MAX_LOOPS] = {0};
+	loop *loops = calloc(program_len, sizeof(loop));
+	if (loops == NULL) {
+		fprintf(stderr, "OOM at %d in file %s\n", __LINE__, __FILE__);
+		exit(EXIT_FAILURE);
+	}
 
 	loop_map *lm = malloc(sizeof(loop_map));
 	if (lm == NULL) {
@@ -87,115 +92,132 @@ loop_map *build_loop_map(const char* program, const size_t program_len) {
 	lm->num_begin = num_begin;
 	lm->num_end = num_end;
 	// copy the entire local loops array into the returned struct's loops array
-	memcpy(lm->loops, loops, sizeof(loops));
+	lm->loops = loops;
 
 	return lm;
 }
 
-// builds a loop map in three passes
-// first pass to convert optimizable instructions to a single instruction (+++ -> +). this loses data, but that's not a problem here
-// second pass to count up loops
-// third pass to ensure loops match
+// builds a loop map that mirrors parse()'s optimized instruction stream
 loop_map *build_optimized_loop_map(const char *program, const size_t optimized_program_len) {
-	Node *code_head = string_to_SLL(program);
-	compress_consecutive(code_head); // optimize
-	#ifdef DEBUG
-		print_list(code_head);
-	#endif
+	const size_t capacity = optimized_program_len ? optimized_program_len : 1;
+
+	loop *loops = calloc(capacity, sizeof(loop));
+	if (loops == NULL) {
+		fprintf(stderr, "OOM at %d in file %s\n", __LINE__, __FILE__);
+		exit(EXIT_FAILURE);
+	}
 
 	loop_map *lm = malloc(sizeof(loop_map));
 	if (lm == NULL) {
 		fprintf(stderr, "OOM at %d in file %s\n", __LINE__, __FILE__);
-		free_sll(code_head);
+		free(loops);
 		exit(EXIT_FAILURE);
 	}
 
-	// compute actual node count and ask SSL_to_string for the correct buffer size
-	char *new_program = SSL_to_string(code_head); // ensure space for NUL
-	if (new_program == NULL) {
-		// fall back to empty program on allocation failure
+	int *stack = malloc(sizeof(int) * capacity);
+	if (stack == NULL) {
 		fprintf(stderr, "OOM at %d in file %s\n", __LINE__, __FILE__);
-		free_sll(code_head);
+		free(loops);
+		free(lm);
 		exit(EXIT_FAILURE);
 	}
 
-	// use the actual returned string length
-	const size_t new_optimized_program_len = strlen(new_program);
-	if (new_optimized_program_len != optimized_program_len) {
-		fprintf(stderr, "optimized too heavily! diff %ld (%zu - %zu)\n",
-		        (long)new_optimized_program_len - (long)optimized_program_len,
-		        new_optimized_program_len, optimized_program_len);
-	}
-
+	size_t read_i = 0;
+	size_t write_i = 0;
+	int top = -1;
 	int num_begin = 0;
 	int num_end = 0;
-	loop loops[MAX_LOOPS] = {0};
 
-	// first pass to count up loops (use new_optimized_program_len)
-	for (size_t read_i = 0; read_i < new_optimized_program_len; ++read_i) {
-		switch (new_program[read_i]) {
-			case BF_INCREASE:
-			case BF_DECREASE:
-			case BF_RIGHT:
-			case BF_LEFT:
-			case BF_READ:
-			case BF_PRINT:
-				break;
-			case BF_START_LOOP:
-			{
-				++num_begin;
-				loops[read_i].type = '[';
-				loops[read_i].position = (int)read_i;
-				loops[read_i].jump = -1;
-				break;
+	while (program[read_i] != '\0') {
+		switch (program[read_i]) {
+		case BF_INCREASE:
+		case BF_DECREASE: {
+			int sum = 0;
+			size_t span = 0;
+			while (program[read_i + span] == BF_INCREASE || program[read_i + span] == BF_DECREASE) {
+				sum += (program[read_i + span] == BF_INCREASE) ? 1 : -1;
+				++span;
 			}
-			case BF_END_LOOP:
-			{
-				++num_end;
-				loops[read_i].type = ']';
-				loops[read_i].position = (int)read_i;
-				loops[read_i].jump = -1;
-				break;
+			if (sum != 0) {
+				if (write_i >= capacity) goto capacity_error;
+				++write_i;
 			}
-			default:
-				break;
+			read_i += span;
+			break;
+		}
+		case BF_RIGHT:
+		case BF_LEFT: {
+			int sum = 0;
+			size_t span = 0;
+			while (program[read_i + span] == BF_RIGHT || program[read_i + span] == BF_LEFT) {
+				sum += (program[read_i + span] == BF_RIGHT) ? 1 : -1;
+				++span;
 			}
-	}
-
-	// second pass to confirm that loops have matches (use new_optimized_program_len)
-	for (size_t read_i = 0; read_i < new_optimized_program_len; ++read_i) {
-		if (new_program[read_i] == BF_START_LOOP) {
-			int nesting = 1;
-			size_t sub_read_i = read_i + 1;
-			while (sub_read_i < new_optimized_program_len && nesting != 0) {
-				if (new_program[sub_read_i] == BF_START_LOOP) {
-					++nesting;
-				} else if (new_program[sub_read_i] == BF_END_LOOP) {
-					--nesting;
-					if (nesting == 0) {
-						loops[read_i].jump = (int)sub_read_i;
-						loops[sub_read_i].jump = (int)read_i; // set both directions
-						break;
-					}
-				}
-				++sub_read_i;
+			if (sum != 0) {
+				if (write_i >= capacity) goto capacity_error;
+				++write_i;
 			}
+			read_i += span;
+			break;
+		}
+		case BF_START_LOOP: {
+			if (write_i >= capacity) goto capacity_error;
+			loops[write_i].type = '[';
+			loops[write_i].position = (int)write_i;
+			loops[write_i].jump = -1;
+			stack[++top] = (int)write_i;
+			++num_begin;
+			++write_i;
+			++read_i;
+			break;
+		}
+		case BF_END_LOOP: {
+			if (write_i >= capacity) goto capacity_error;
+			if (top < 0) {
+				fprintf(stderr, "unmatched ']' at %zu\n", read_i);
+				goto fail;
+			}
+			int begin = stack[top--];
+			loops[write_i].type = ']';
+			loops[write_i].position = (int)write_i;
+			loops[write_i].jump = begin;
+			loops[begin].jump = (int)write_i;
+			++num_end;
+			++write_i;
+			++read_i;
+			break;
+		}
+		default:
+			if (write_i >= capacity) goto capacity_error;
+			++write_i;
+			++read_i;
+			break;
 		}
 	}
 
-	// simple check
-	if (num_begin != num_end) {
+	if (top >= 0) {
 		fprintf(stderr, "unmatched loops!\n");
 	}
 
 	lm->num_begin = num_begin;
 	lm->num_end = num_end;
-	// copy the entire local loops array into the returned struct's loops array
-	memcpy(lm->loops, loops, sizeof(loops));
+	lm->loops = loops;
 
-	// clean up
-	free_sll(code_head);
-	free(new_program);
-
+	free(stack);
 	return lm;
+
+capacity_error:
+	fprintf(stderr, "loop map capacity mismatch (write_i=%zu, len=%zu)\n", write_i, capacity);
+fail:
+	free(stack);
+	free(loops);
+	free(lm);
+	exit(EXIT_FAILURE);
+}
+
+void free_loop_map(loop_map *lm) {
+ if (lm != NULL) {
+  free(lm->loops);
+  free(lm);
+ }
 }

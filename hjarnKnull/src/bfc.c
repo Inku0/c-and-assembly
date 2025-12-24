@@ -86,7 +86,8 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 		}
 		write_i++;
 	}
-	free((void*)loop_map);
+
+	free_loop_map((void*)loop_map);
 	return inst_array;
 }
 
