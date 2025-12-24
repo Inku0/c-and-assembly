@@ -23,7 +23,7 @@ void handleStdIn(const char c) {
 
 void interpret(const char *program) {
 	// Pre-build the loop position map using one stack
-	const loop_map *loop_map = build_loop_map(program, strlen(program));
+	loop_map *loop_map = build_loop_map(program, strlen(program));
 	
 	int i = 0;
 	char c;
@@ -71,5 +71,5 @@ void interpret(const char *program) {
 		// increment index
 		i++;
 	}
-	free_loop_map((void*)loop_map);
+	free_loop_map(loop_map);
 }

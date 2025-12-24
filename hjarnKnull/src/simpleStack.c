@@ -46,7 +46,6 @@ bool pop(stack_t *stack, int *out) {
 	// or if its pointer is NULL, it's also empty
 	if (stack->len <= 0 || stack->items == NULL) {
 		// fprintf(stderr, "Stack underflow!\n");
-		out = NULL;
 		return false;
 	}
 
