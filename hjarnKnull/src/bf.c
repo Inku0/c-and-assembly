@@ -20,7 +20,7 @@ int main(const int argc, char **argv) {
   	return EXIT_FAILURE;
   }
 
-	if (check(argv[2], strlen(argv[2])) != true) {
+	if (!check(argv[2], strlen(argv[2]))) {
 		return EXIT_FAILURE;
 	}
 
