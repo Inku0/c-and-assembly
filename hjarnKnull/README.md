@@ -6,7 +6,8 @@ NB! This project uses `mold` for linking. Feel free to use another linker!
 ## Features
 - detects unmatched loops
 - detects illegal instructions
-- optimizes multiple +/- and </> instructions to a single add(amount) or move(units)
+- optimizes multiple serial +/- and </> instructions into a single add(amount) or move(units)
+  - add(0) and move(0) are optimized away
 
 ## TODO
 - add a test suite

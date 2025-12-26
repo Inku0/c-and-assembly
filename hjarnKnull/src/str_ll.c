@@ -144,7 +144,7 @@ Node* string_to_SLL(const char *text) {
 	return head;
 }
 
-char *SSL_to_string(Node *head) {
+char *SLL_to_string(Node *head) {
 	if (!head) return NULL;
 
 	const size_t len = sll_length(head) + 1; // + 1 for NUL

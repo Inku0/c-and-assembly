@@ -12,7 +12,7 @@ Node* add(const char data);
 Node* string_to_SLL(const char *text);
 
 // convert a link list (from its head) to a string pointer
-char *SSL_to_string(Node *head);
+char *SLL_to_string(Node *head);
 
 // (debugging) print every element in linked list
 void print_list(const Node *head);
