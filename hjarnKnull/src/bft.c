@@ -61,6 +61,11 @@ void translate(const char *program) {
   // parses the program into a stack of instructions
   BF_instruction_t **inst_array = parse(program, program_len);
 
+	if (inst_array == NULL) {
+		fprintf(stderr, "bf: parsing failed\n");
+		return;
+	}
+
   // run takes the edited inst_array and executes the instructions
   printTranslate(inst_array, program_len, program);
 
