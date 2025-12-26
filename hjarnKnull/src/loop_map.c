@@ -6,8 +6,6 @@
 
 #include "bf.h"
 
-#define DEBUG
-
 void print_loop_map(const loop_map *loop_map) {
   for (int i = 0; i <= 1023; i++) {
   	if (loop_map->loops[i].type == '[' || loop_map->loops[i].type == ']') {
