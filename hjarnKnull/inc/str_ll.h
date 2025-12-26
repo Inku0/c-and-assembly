@@ -11,7 +11,7 @@ Node* add(const char data);
 // convert a string to a linked list of characters
 Node* string_to_SLL(const char *text);
 
-// convert a link list (from its head) to a string pointer
+// convert a linked list (from its head) to a string pointer
 char *SLL_to_string(Node *head);
 
 // (debugging) print every element in linked list
