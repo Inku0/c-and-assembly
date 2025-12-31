@@ -56,7 +56,7 @@ bool check(const char* program, const size_t program_len) {
 			// but we go beyond that
 			fprintf(stderr, "encountered unknown symbol '%c' at %d\n", program[read_i], read_i + 1); // +1 to get the logical position (starting at 1)
 			free_loop_map(loop_map);
-			return false;
+			return true;
 		}
 	}
 
