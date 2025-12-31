@@ -33,6 +33,22 @@ void free_sll(Node *head) {
 	}
 }
 
+struct comp{int count; Node *end;} compress(Node *curr, const char negative, const char positive) {
+	Node *runner = curr;
+	Node *block_end = curr;
+	int count = 0;
+	while (runner && (runner->data == negative || runner->data == positive)) {
+		count += runner->data == positive ? 1 : -1;
+		block_end = runner;
+		runner = runner->next;
+	}
+	const struct comp comp_result = {
+		.count = count,
+		.end = block_end
+	};
+	return comp_result;
+}
+
 Node *compress_consecutive(Node *head) {
 	if (!head) return NULL;
 
@@ -40,57 +56,17 @@ Node *compress_consecutive(Node *head) {
 	Node *curr = head;
 
 	while (curr) {
-		if (curr->data == BF_INCREASE || curr->data == BF_DECREASE) {
+		if (curr->data == BF_INCREASE || curr->data == BF_DECREASE || curr->data == BF_LEFT || curr->data == BF_RIGHT) {
 			Node *block_start = curr;
-			Node *block_end = curr;
+			Node *block_end = NULL;
 			Node *runner = curr;
-			int count = 0;
 
-			while (runner && (runner->data == BF_INCREASE || runner->data == BF_DECREASE)) {
-				count += runner->data == BF_INCREASE ? 1 : -1;
-				block_end = runner;
-				runner = runner->next;
-			}
+			const char positive = curr->data == BF_INCREASE ? BF_INCREASE : BF_RIGHT;
+			const char negative = curr->data == BF_DECREASE ? BF_DECREASE : BF_LEFT;
+			const struct comp comp_result = compress(runner, negative, positive);
+			block_end = comp_result.end;
 
-			if (count == 0) {
-				Node *after = runner;
-
-				if (prev) {
-					prev->next = after;
-					free_range(block_start, after);
-					curr = after;
-				} else {
-					if (!after) {
-						free_range(block_start, NULL);
-						return NULL;
-					}
-					free_range(block_start->next, after);
-					block_start->data = after->data;
-					block_start->next = after->next;
-					free(after);
-					curr = block_start;
-				}
-				continue;
-			}
-
-			prev = block_end;
-			curr = runner;
-			continue;
-		}
-
-		if (curr->data == BF_LEFT || curr->data == BF_RIGHT) {
-			Node *block_start = curr;
-			Node *block_end = curr;
-			Node *runner = curr;
-			int count = 0;
-
-			while (runner && (runner->data == BF_LEFT || runner->data == BF_RIGHT)) {
-				count += runner->data == BF_RIGHT ? 1 : -1;
-				block_end = runner;
-				runner = runner->next;
-			}
-
-			if (count == 0) {
+			if (comp_result.count == 0) {
 				Node *after = runner;
 
 				if (prev) {
