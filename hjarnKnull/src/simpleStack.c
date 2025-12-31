@@ -57,11 +57,10 @@ bool pop(stack_t *stack, int *out) {
 		stack->capacity = 0;
 		free(stack->items);
 		stack->items = NULL; // to prevent a dangling pointer
-		goto control;
 	}
 
 	// if there are 4x fewer elements than the capacity allows, then reduce capacity by 2x
-	if (stack->len <= (stack->capacity / 4)) {
+	else if (stack->len <= (stack->capacity / 4)) {
 		const int new_capacity = (stack->capacity / 2) + (stack->capacity % 2 != 0); // ceiling division
 		int *new_items = realloc(stack->items, (new_capacity) * sizeof(int));
 
@@ -73,11 +72,10 @@ bool pop(stack_t *stack, int *out) {
 		stack->items = new_items;
 	}
 
-	control:
-		if (out) {
-			*out = value;
-		}
-		return true;
+	if (out) {
+		*out = value;
+	}
+	return true;
 }
 
 bool isEmpty(stack_t *stack) {
