@@ -11,6 +11,7 @@ NB! This project uses `mold` for linking. Feel free to use another linker!
 
 ## TODO
 - add a test suite
+- fix segmentation faults for huge BF programs
 - ~~add a Makefile target for linking asm~~
   - `make compile_asm` (.asm source files must be in src/x86_32)
 
