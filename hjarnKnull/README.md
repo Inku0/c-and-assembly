@@ -6,12 +6,12 @@ NB! This project uses `mold` for linking. Feel free to use another linker!
 ## Features
 - detects unmatched loops
 - detects illegal instructions aka non-BF characters
+- optimizes `[-]` into mem_set(0)
 - optimizes multiple serial +/- and </> instructions into a single add(amount) or move(units)
   - add(0) and move(0) are optimized away
 
 ## TODO
 - add a test suite
-- optimize away common instructions like `[-]`
 - ~~add a Makefile target for linking asm~~
   - `make compile_asm` (.asm source files must be in src/x86_32)
 

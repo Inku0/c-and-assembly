@@ -160,13 +160,18 @@ loop_map *build_optimized_loop_map(const char *program, const size_t optimized_p
 		}
 		case BF_START_LOOP: {
 			if (write_i >= capacity) goto capacity_error;
-			loops[write_i].type = '[';
-			loops[write_i].position = (int)write_i;
-			loops[write_i].jump = -1;
-			stack[++top] = (int)write_i;
-			++num_begin;
-			++write_i;
-			++read_i;
+			if (program[read_i + 1] == BF_DECREASE && program[read_i + 2] == BF_END_LOOP) {
+				read_i += 3; // jump ahead of the `[-]` loop
+				++write_i;
+			} else {
+				loops[write_i].type = '[';
+				loops[write_i].position = (int)write_i;
+				loops[write_i].jump = -1;
+				stack[++top] = (int)write_i;
+				++num_begin;
+				++write_i;
+				++read_i;
+			}
 			break;
 		}
 		case BF_END_LOOP: {

@@ -75,8 +75,13 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 				break;
 			case BF_START_LOOP: {
 				// TODO: optimize cycle immediately if it doesn't depend on user input (is fully deterministic)
-				inst_array[write_i] = BF_beginLoop_new(loop_map->loops[write_i].jump);
-				read_i++;
+				if (program[read_i + 1] == BF_DECREASE && program[read_i + 2] == BF_END_LOOP) {
+					inst_array[write_i] = BF_setZero_new();
+					read_i += 3; // jump ahead of the `[-]` loop
+				} else {
+					inst_array[write_i] = BF_beginLoop_new(loop_map->loops[write_i].jump);
+					read_i++;
+				}
 				break;
 			}
 			case BF_END_LOOP: {

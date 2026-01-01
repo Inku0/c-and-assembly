@@ -10,6 +10,11 @@ int optimize_length(const char *program) {
 	while (program[i] != 0) {
 		const char current = program[i];
 
+		if (current == BF_START_LOOP && program[i + 1] == BF_DECREASE && program[i + 2] == BF_END_LOOP) {
+			optimized_count++;
+			i += 3;
+		}
+
 		if (current == BF_INCREASE || current == BF_DECREASE ) {
 			int count = 1;
 			while (program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) {
