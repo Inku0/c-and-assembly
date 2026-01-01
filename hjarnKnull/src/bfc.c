@@ -81,7 +81,7 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 				break;
 			}
 			default:
-				// check.c guarantees that no unknown symbols make it here
+				read_i++;
 				break;
 		}
 		write_i++;
