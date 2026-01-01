@@ -15,6 +15,10 @@
 // why the double pointer?
 BF_instruction_t **parse(const char *program, const int program_len) {
 	loop_map *loop_map = build_optimized_loop_map(program, program_len);
+	if (loop_map == NULL) {
+		fprintf(stderr, "failed to build loop map");
+		return NULL;
+	}
 
 	// a stack which contains optimized_count number of pointers
 	// calloc inits all values to 0
@@ -115,7 +119,6 @@ BF_program compile(const char *program) {
 
   // parses the program into a stack of instructions
   BF_instruction_t **inst_array = parse(program, program_len);
-
 	if (inst_array == NULL) {
 		const BF_program bfCode = {
 			.inst_array = NULL,
