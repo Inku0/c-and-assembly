@@ -1,5 +1,4 @@
 # HjarnKnull 
 is a slightly optimized BrainFuck interpreter, compiler, and Assembly translator.
 
-The source code is available under the `HjarnKnull` directory (`testC` is for learning).
-
+Check out the README in the `HjarnKnull` directory for more info (`testC` was for learning the basics of C).
