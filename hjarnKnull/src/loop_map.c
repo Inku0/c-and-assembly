@@ -147,7 +147,7 @@ loop_map *build_optimized_loop_map(const char *program, const size_t optimized_p
 		case BF_LEFT: {
 			int sum = 0;
 			size_t span = 0;
-			while (program[read_i + span] == BF_RIGHT || program[read_i + span] == BF_LEFT) {
+			while ((program[read_i + span] == BF_RIGHT || program[read_i + span] == BF_LEFT) && program[read_i + span] != '\0') {
 				sum += (program[read_i + span] == BF_RIGHT) ? 1 : -1;
 				++span;
 			}
