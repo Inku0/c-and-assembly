@@ -214,8 +214,8 @@ fail:
 }
 
 void free_loop_map(loop_map *lm) {
- if (lm != NULL) {
-  free(lm->loops);
-  free(lm);
- }
+	if (lm != NULL) {
+		free(lm->loops);
+		free(lm);
+	}
 }
