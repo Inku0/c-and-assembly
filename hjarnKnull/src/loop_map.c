@@ -159,7 +159,7 @@ loop_map *build_optimized_loop_map(const char *program, const size_t optimized_p
 			break;
 		}
 		case BF_START_LOOP: {
-			if (write_i >= capacity) goto capacity_error;
+			if (write_i > capacity) goto capacity_error;
 			if (program[read_i + 1] == BF_DECREASE && program[read_i + 2] == BF_END_LOOP) {
 				read_i += 3; // jump ahead of the `[-]` loop
 				++write_i;
@@ -175,7 +175,7 @@ loop_map *build_optimized_loop_map(const char *program, const size_t optimized_p
 			break;
 		}
 		case BF_END_LOOP: {
-			if (write_i >= capacity) goto capacity_error;
+			if (write_i > capacity) goto capacity_error;
 			if (top < 0) {
 				fprintf(stderr, "unmatched ']' at %zu\n", read_i);
 				goto fail;
@@ -191,7 +191,7 @@ loop_map *build_optimized_loop_map(const char *program, const size_t optimized_p
 			break;
 		}
 		default:
-			if (write_i >= capacity) goto capacity_error;
+			if (write_i > capacity) goto capacity_error;
 			++write_i;
 			++read_i;
 			break;
