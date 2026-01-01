@@ -65,6 +65,7 @@ Node *compress_consecutive(Node *head) {
 			const char negative = curr->data == BF_DECREASE ? BF_DECREASE : BF_LEFT;
 			const struct comp comp_result = compress(runner, negative, positive);
 			block_end = comp_result.end;
+			runner = block_end ? block_end->next : NULL;
 
 			if (comp_result.count == 0) {
 				Node *after = runner;
