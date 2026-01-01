@@ -54,7 +54,10 @@ bool check(const char* program, const size_t program_len) {
 		default:
 			// default behavior is to silently ignore unknown symbols
 			// but we go beyond that
-			fprintf(stderr, "warning: encountered unknown symbol '%c' at %d\n", program[read_i], read_i + 1); // +1 to get the logical position (starting at 1)
+			if (program[read_i] != '\n') {
+				// silently ignore only newline chars
+				fprintf(stderr, "warning: encountered unknown symbol '%c' at %d\n", program[read_i], read_i + 1); // +1 to get the logical position (starting at 1)
+			}
 			read_i++;
 			break;
 		}
