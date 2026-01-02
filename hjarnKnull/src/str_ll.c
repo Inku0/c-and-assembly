@@ -33,7 +33,7 @@ void free_sll(Node *head) {
 	}
 }
 
-struct comp{int count; Node *end;} compress(Node *curr, const char negative, const char positive) {
+struct comp {int count; Node *end;} compress(Node *curr, const char negative, const char positive) {
 	Node *runner = curr;
 	Node *block_end = curr;
 	int count = 0;
