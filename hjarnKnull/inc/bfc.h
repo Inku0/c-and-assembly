@@ -13,8 +13,5 @@ BF_program compile(const char *program);
 // helper function which runs and frees the BF program
 void execute(BF_program bfCode);
 
-// helper function which optimizes length by summing up inc/dec and left/right instructions
-int optimize_length(const char *program);
-
 // helper function which parses BF code, must also be given the program's length
 BF_instruction_t **parse(const char *program, int program_len);

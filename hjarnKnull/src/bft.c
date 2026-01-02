@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "bfc.h"
 #include "instructions.h"
+#include "optimize.h"
 #include "printline.h"
 
 #define asmBoilerplate(bfCode) \

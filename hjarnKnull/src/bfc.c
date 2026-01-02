@@ -6,6 +6,7 @@
 
 #include "instructions.h"
 #include "loop_map.h"
+#include "optimize.h"
 
 // TODO: treat add(0) and move(0) as non-operations
 
