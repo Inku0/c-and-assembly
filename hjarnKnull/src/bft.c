@@ -1,12 +1,14 @@
+#include "bft.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bfc.h"
-#include "bft.h"
 #include "instructions.h"
+#include "printline.h"
 
 #define asmBoilerplate(bfCode) \
 	printf("; translated from BF: "); \
-	printf("%s \n", bfCode); \
+	printline(bfCode); \
+	printf("\n"); \
 	printf("global main\n"); \
 	printf("section .text\n"); \
 	printf("main:\n"); \
