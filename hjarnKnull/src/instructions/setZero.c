@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 void BF_setZero_run(const BF_instruction_t *instruction, int *index) {
-	// increase it by the amount given in *instruction
+	// set the current memory cell to 0
 	mem_set(0);
 
 	// move counter forward by 1
@@ -16,7 +16,9 @@ void BF_setZero_asm(const BF_instruction_t *instruction, int *index) {
 	printf("\t; instruction: setZero\n");
 	printf("\t; index %d\n", *index);
 #endif
-	printf("\tmov [esi+edi], 0\n");
+	printf("\tmov al, [esi+edi]\n");
+	printf("\txor al, al\n");
+	printf("\tmov [esi+edi], al\n");
 
 	(*index)++;
 }
