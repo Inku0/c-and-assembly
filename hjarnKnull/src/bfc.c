@@ -13,7 +13,7 @@
 BF_instruction_t **parse(const char *program, const int program_len) {
 	loop_map *loop_map = build_optimized_loop_map(program, program_len);
 	if (loop_map == NULL) {
-		fprintf(stderr, "failed to build loop map");
+		fprintf(stderr, "failed to build loop map\n");
 		return NULL;
 	}
 

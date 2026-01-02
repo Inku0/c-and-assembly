@@ -23,7 +23,7 @@ void interpret(const char *program) {
 	// Pre-build the loop position map using one stack
 	loop_map *loop_map = build_loop_map(program, strlen(program));
 	if (loop_map == NULL) {
-		fprintf(stderr, "failed to build loop map");
+		fprintf(stderr, "failed to build loop map\n");
 		return;
 	}
 	
