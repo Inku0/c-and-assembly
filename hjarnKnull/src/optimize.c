@@ -15,7 +15,7 @@ int optimize_length(const char *program) {
 			i += 3;
 		}
 
-		if (current == BF_INCREASE || current == BF_DECREASE ) {
+		if (current == BF_INCREASE || current == BF_DECREASE) {
 			int count = 1;
 			while ((program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) && program[i + count] != '\0') {
 				// count up the number of elements in the optimizable instruction sequence
