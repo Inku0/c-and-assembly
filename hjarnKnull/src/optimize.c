@@ -17,7 +17,7 @@ int optimize_length(const char *program) {
 
 		if (current == BF_INCREASE || current == BF_DECREASE ) {
 			int count = 1;
-			while (program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) {
+			while ((program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) && program[i + count] != '\0') {
 				// count up the number of elements in the optimizable instruction sequence
 				count++;
 			}
@@ -29,7 +29,7 @@ int optimize_length(const char *program) {
 
 		else if (current == BF_RIGHT || current == BF_LEFT) {
 			int count = 1;
-			while (program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) {
+			while ((program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) && program[i + count] != '\0') {
 				// count up the number of elements in the optimizable instruction sequence
 				count++;
 			}
