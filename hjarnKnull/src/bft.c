@@ -39,8 +39,8 @@ void printTranslate(BF_instruction_t **inst_array, const int inst_array_length, 
 		}
 	}
 	printf("\tadd esp, 30000\n");
-	printf("\tpop esi\n");
 	printf("\tpop edi\n");
+	printf("\tpop esi\n");
 
 	// exit(0)
 	printf("\texit:\n");
