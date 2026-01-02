@@ -1,8 +1,4 @@
-//
-// Created by hringhorni on 1/2/26.
-//
+#pragma once
 
-#ifndef C_AND_ASSEMBLY_PRINTLINE_H
-#define C_AND_ASSEMBLY_PRINTLINE_H
-
-#endif // C_AND_ASSEMBLY_PRINTLINE_H
+// print a string and ignore any \n chars
+void printline(const char *str);
