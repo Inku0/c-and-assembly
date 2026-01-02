@@ -1,14 +1,11 @@
 #include <stdlib.h>
-#include <string.h>
 #include "bf.h"
 #include "bfc.h"
 
 #include <stdio.h>
 
-#include "bfi.h"
 #include "instructions.h"
 #include "loop_map.h"
-#include "simpleStack.h"
 
 // TODO: treat add(0) and move(0) as non-operations
 

@@ -1,10 +1,8 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "../inc/loop_map.h"
+#include "loop_map.h"
 #include "bf.h"
 #include "mem.h"
-#include "simpleStack.h"
 
 #ifdef DEBUG
   #define PRINT_PARAMS "'%c' (kood = %d)\n", c, c

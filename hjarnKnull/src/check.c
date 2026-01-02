@@ -3,9 +3,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
 
-#include "../inc/loop_map.h"
+#include "loop_map.h"
 #include "bf.h"
 
 bool check(const char* program, const size_t program_len) {

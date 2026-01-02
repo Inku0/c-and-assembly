@@ -1,4 +1,4 @@
-#include "../inc/loop_map.h"
+#include "loop_map.h"
 
 #include <stdio.h>
 #include <stdlib.h>
