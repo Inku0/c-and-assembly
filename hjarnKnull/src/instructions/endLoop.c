@@ -8,8 +8,8 @@ void BF_endLoop_run(const BF_instruction_t *instruction, int *index) {
 
   // anything below 0 is an illegal and illogical value
   if (instruction->loopBackwardIndex < 0) {
-    printf("illegal loopBackwardIndex %d\n", instruction->loopBackwardIndex);
-    exit(-1);
+    fprintf(stderr, "illegal loopBackwardIndex %d\n", instruction->loopBackwardIndex);
+    exit(EXIT_FAILURE);
   }
 
   if (val == 0) {

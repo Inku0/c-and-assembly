@@ -34,6 +34,12 @@ int mem_get(void);
 // save value to current index and also return it
 int mem_set(char v);
 
+// expose capacity for sanity checks in tests
+int mem_capacity(void);
+
+// report current pointer position
+int mem_position(void);
+
 // print debug info
 // example: index: 10 mem [10 .. 19]: 7 6 10 -12 55 22 0 0 0 0
 void mem_printDebug(void);

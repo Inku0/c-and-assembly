@@ -2,11 +2,7 @@
 #include <stdlib.h>
 #include "simpleStack.h"
 
-#define OOM \
-	printf("OOM at %d\n", __LINE__); \
-	exit(-1);
-
-void push(stack_t *stack, const int value) {
+int push(stack_t *stack, const int value) {
 	// check if memory has been allocated, otherwise init it
 	if (stack->len == 0) {
 		stack->capacity = 1;
@@ -42,15 +38,15 @@ void push(stack_t *stack, const int value) {
 	// increase len as well
 	stack->len++;
 
-	return;
+	return stack->items[stack->len - 1];
 }
 
-int pop(stack_t *stack) {
+bool pop(stack_t *stack, int *out) {
 	// if it's 0 or less, then it's empty
 	// or if its pointer is NULL, it's also empty
 	if (stack->len <= 0 || stack->items == NULL) {
-		printf("Stack underflow!!!\n");
-		exit(-1);
+		// fprintf(stderr, "Stack underflow!\n");
+		return false;
 	}
 
 	const int value = stack->items[stack->len - 1];
@@ -61,11 +57,10 @@ int pop(stack_t *stack) {
 		stack->capacity = 0;
 		free(stack->items);
 		stack->items = NULL; // to prevent a dangling pointer
-		return value;
 	}
 
 	// if there are 4x fewer elements than the capacity allows, then reduce capacity by 2x
-	if (stack->len <= (stack->capacity / 4)) {
+	else if (stack->len <= (stack->capacity / 4)) {
 		const int new_capacity = (stack->capacity / 2) + (stack->capacity % 2 != 0); // ceiling division
 		int *new_items = realloc(stack->items, (new_capacity) * sizeof(int));
 
@@ -77,7 +72,10 @@ int pop(stack_t *stack) {
 		stack->items = new_items;
 	}
 
-	return value;
+	if (out) {
+		*out = value;
+	}
+	return true;
 }
 
 bool isEmpty(stack_t *stack) {
@@ -103,7 +101,7 @@ void printStack(stack_t *stack) {
 void clear(stack_t *stack) {
 	// pop() already frees items when len reaches 0
 	while (stack->len > 0) {
-		stack->pop(stack);
+		stack->pop(stack, NULL);
 	}
 	// items should already be NULL and freed by pop()
 	// but just to be safe:

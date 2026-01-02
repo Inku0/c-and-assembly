@@ -1,12 +1,15 @@
+#include "bft.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bfc.h"
-#include "bft.h"
 #include "instructions.h"
+#include "optimize.h"
+#include "printline.h"
 
 #define asmBoilerplate(bfCode) \
 	printf("; translated from BF: "); \
-	printf("%s \n", bfCode); \
+	printline(bfCode); \
+	printf("\n"); \
 	printf("global main\n"); \
 	printf("section .text\n"); \
 	printf("main:\n"); \
@@ -36,8 +39,8 @@ void printTranslate(BF_instruction_t **inst_array, const int inst_array_length, 
 		}
 	}
 	printf("\tadd esp, 30000\n");
-	printf("\tpop esi\n");
 	printf("\tpop edi\n");
+	printf("\tpop esi\n");
 
 	// exit(0)
 	printf("\texit:\n");
@@ -60,6 +63,11 @@ void translate(const char *program) {
 
   // parses the program into a stack of instructions
   BF_instruction_t **inst_array = parse(program, program_len);
+
+	if (inst_array == NULL) {
+		fprintf(stderr, "bf: parsing failed\n");
+		return;
+	}
 
   // run takes the edited inst_array and executes the instructions
   printTranslate(inst_array, program_len, program);

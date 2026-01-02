@@ -1,54 +1,22 @@
 #include <stdlib.h>
-#include <string.h>
 #include "bf.h"
 #include "bfc.h"
+
+#include <stdio.h>
+
 #include "instructions.h"
-#include "simpleStack.h"
+#include "loop_map.h"
+#include "optimize.h"
 
-int optimize_length(const char *program) {
-	int i = 0;
-	int optimized_count = 0;
-
-	// get the optimized length of instructions
-	while (program[i] != 0) {
-		const char current = program[i];
-
-		if (current == BF_INCREASE || current == BF_DECREASE ) {
-			int count = 1;
-			while (program[i + count] == BF_INCREASE || program[i + count] == BF_DECREASE) {
-				// count up the number of elements in the optimizable instruction sequence
-				count++;
-			}
-			// treat the sequence as just one optimized instruction
-			optimized_count++;
-			// move forward to the next instruction
-			i += count;
-		}
-
-		else if (current == BF_RIGHT || current == BF_LEFT) {
-			int count = 1;
-			while (program[i + count] == BF_RIGHT || program[i + count] == BF_LEFT) {
-				// count up the number of elements in the optimizable instruction sequence
-				count++;
-			}
-			// treat the sequence as just one optimized instruction
-			optimized_count++;
-			// move forward to the next instruction
-			i += count;
-		}
-
-		else {
-			// non-optimizable instruction, just count it as is
-			optimized_count++;
-			i++;
-		}
-	}
-	return optimized_count;
-}
+// TODO: treat add(0) and move(0) as non-operations
 
 // why the double pointer?
 BF_instruction_t **parse(const char *program, const int program_len) {
-	stack_t *loop_stack = create_stack(30000);
+	loop_map *loop_map = build_optimized_loop_map(program, program_len);
+	if (loop_map == NULL) {
+		fprintf(stderr, "failed to build loop map\n");
+		return NULL;
+	}
 
 	// a stack which contains optimized_count number of pointers
 	// calloc inits all values to 0
@@ -105,30 +73,28 @@ BF_instruction_t **parse(const char *program, const int program_len) {
 				break;
 			case BF_START_LOOP: {
 				// TODO: optimize cycle immediately if it doesn't depend on user input (is fully deterministic)
-				inst_array[write_i] = BF_beginLoop_new();
-				loop_stack->push(loop_stack, write_i);
-				read_i++;
+				if (program[read_i + 1] == BF_DECREASE && program[read_i + 2] == BF_END_LOOP) {
+					inst_array[write_i] = BF_setZero_new();
+					read_i += 3; // jump ahead of the `[-]` loop
+				} else {
+					inst_array[write_i] = BF_beginLoop_new(loop_map->loops[write_i].jump);
+					read_i++;
+				}
 				break;
 			}
 			case BF_END_LOOP: {
-				const int beginIndex = loop_stack->pop(loop_stack);
-				inst_array[write_i] = BF_endLoop_new(beginIndex);
-				inst_array[beginIndex]->loopForwardIndex = write_i;
+				inst_array[write_i] = BF_endLoop_new(loop_map->loops[write_i].jump);
 				read_i++;
 				break;
 			}
 			default:
-				// default behavior is to silently ignore unknown symbols
-				--write_i; // counteract the default ++ behavior
 				read_i++;
 				break;
 		}
 		write_i++;
 	}
 
-	loop_stack->clear(loop_stack);
-	free(loop_stack);
-
+	free_loop_map(loop_map);
 	return inst_array;
 }
 
@@ -156,11 +122,18 @@ BF_program compile(const char *program) {
 
   // parses the program into a stack of instructions
   BF_instruction_t **inst_array = parse(program, program_len);
+	if (inst_array == NULL) {
+		const BF_program bfCode = {
+			.inst_array = NULL,
+			.inst_array_length = 0,
+		};
+		return bfCode;
+	}
 
 	// for clarity
 	const BF_program bfCode = {
 		.inst_array = inst_array,
-		.inst_array_length = program_len
+		.inst_array_length = program_len,
 	};
 
   return bfCode;

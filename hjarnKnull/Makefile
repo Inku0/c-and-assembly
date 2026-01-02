@@ -1,5 +1,5 @@
 CC := clang
-CFLAGS := -Wall -Werror -Wpedantic -m32 -DDEBUG
+CFLAGS := -Wall -Werror -Wpedantic -m32
 LINKER := -fuse-ld=mold
 INC := inc
 
@@ -26,6 +26,7 @@ INST_OBJS := $(patsubst $(INST_DIR)/%.c,$(OBJ_INST_DIR)/%.o,$(INST_SRCS))
 
 ASM_SRCS := $(wildcard $(ASM_DIR)/*.asm)
 ASM_OBJS := $(patsubst $(ASM_DIR)/%.asm,$(OBJ_ASM_DIR)/%.o,$(ASM_SRCS))
+ASM_BINS := $(patsubst $(ASM_DIR)/%.asm,$(BIN_DIR)/%,$(ASM_SRCS))
 
 BF_OBJS := $(CORE_OBJS) $(INST_OBJS)
 
@@ -42,13 +43,16 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 $(OBJ_INST_DIR)/%.o: $(INST_DIR)/%.c | $(OBJ_INST_DIR)
 	$(CC) $(CFLAGS) -I$(INC) -c -o $@ $<
 
-compile_asm: $(ASM_OBJS)
+compile_asm: $(ASM_BINS)
 
 $(OBJ_ASM_DIR)/%.o: $(ASM_DIR)/%.asm | $(OBJ_ASM_DIR)
 	$(AS) $(ASFLAGS) -o $@ $<
+
+$(BIN_DIR)/%: $(OBJ_ASM_DIR)/%.o | $(BIN_DIR)
+	$(CC) -m32 -o $@ $<
 
 $(DIRS):
 	mkdir -p $@
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR)/bf
+	rm -rf $(OBJ_DIR) $(BIN_DIR)

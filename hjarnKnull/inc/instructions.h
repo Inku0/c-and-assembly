@@ -48,7 +48,10 @@ BF_instruction_t* BF_read_new(void);
 BF_instruction_t* BF_write_new(void);
 
 // begin loop at some index
-BF_instruction_t *BF_beginLoop_new(void);
+BF_instruction_t *BF_beginLoop_new(int index);
 
 // loop ending and its checks
 BF_instruction_t *BF_endLoop_new(int loopBackwardIndex);
+
+// set current memory cell to zero (mainly for optimizing `[-]` instructions)
+BF_instruction_t *BF_setZero_new(void);

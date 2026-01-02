@@ -10,6 +10,7 @@ int32_t current_index = 0;
 
 void mem_init(void) {
 	memset(mem, 0, MEM_LEN * sizeof(int8_t));
+	current_index = 0;
 	// for (int i = 0; i <= MEM_LEN; i++) {
 	// 	mem[i] = 0;
 	// }
@@ -30,8 +31,8 @@ int mem_move(const int units) {
 	if (new_index < 0) {
 		current_index = 0;
 	}
-	else if (new_index > MEM_LEN) {
-		current_index = new_index - MEM_LEN; // wrap-around
+	else if (new_index >= MEM_LEN) {
+		current_index = new_index % MEM_LEN; // wrap-around
 	}
 	else {
 		current_index = new_index;
@@ -60,6 +61,14 @@ int mem_right(void) {
 int mem_set(char v) {
 	mem[current_index] = v;
 	return mem_get();
+}
+
+int mem_capacity(void) {
+	return MEM_LEN;
+}
+
+int mem_position(void) {
+	return current_index;
 }
 
 void mem_printDebug(void) {
