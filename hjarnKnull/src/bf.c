@@ -7,6 +7,7 @@
 #include "bft.h"
 #include "check.h"
 #include "mem.h"
+#include "readfile.h"
 
 
 // TODO: optimize to multiple passes
@@ -20,18 +21,23 @@ int main(const int argc, char **argv) {
   	return EXIT_FAILURE;
   }
 
-	if (!check(argv[2], strlen(argv[2]))) {
+	char *program = readline(argv[2]);
+	if (program == NULL) {
+		program = argv[2];
+	}
+
+	if (!check(program, strlen(program))) {
 		return EXIT_FAILURE;
 	}
 
 	mem_init();
 
   if (argv[1][0] == 'i') {
-  	interpret(argv[2]);
+  	interpret(program);
   }
 
 	else if (argv[1][0] == 'c') {
-		const BF_program bfCode = compile(argv[2]);
+		const BF_program bfCode = compile(program);
   	if (bfCode.inst_array == NULL || bfCode.inst_array_length == 0) {
   		fprintf(stderr, "bf: compile failed\n");
   		return EXIT_FAILURE;
@@ -40,7 +46,7 @@ int main(const int argc, char **argv) {
 	}
 
 	else if (argv[1][0] == 't') {
-		translate(argv[2]);
+		translate(program);
 	}
 
 	else {
